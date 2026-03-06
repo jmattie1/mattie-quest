@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Emmet's Quest">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='#1E1E2E'/><text y='.9em' font-size='75' x='12'>🐺</text></svg>">
+<title>Emmet's Daily Quest 🐺</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+  :root { --color: #4ECDC4; --color-dim: #4ECDC433; --gold:#FFD93D; --purple:#A855F7; --green:#22C55E; --bg:#0F172A; --card:#1E293B; --card2:#263348; --text:#F1F5F9; --muted:#94A3B8; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;background-image:radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,0.3) 0%,transparent 100%),radial-gradient(1px 1px at 80% 10%,rgba(255,255,255,0.2) 0%,transparent 100%),radial-gradient(1px 1px at 50% 80%,rgba(255,255,255,0.25) 0%,transparent 100%);}
+  .app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:16px 16px 50px;}
+
+  /* HEADER */
+  .top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 0 6px;}
+  .player-name{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--color);}
+  .player-sub{font-size:0.75rem;color:var(--muted);}
+  .date-pill{background:var(--card2);border-radius:20px;padding:5px 12px;font-size:0.75rem;font-weight:700;color:var(--gold);border:1px solid rgba(255,217,61,0.3);}
+  .sub-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .sync-row{display:flex;align-items:center;gap:5px;font-size:0.7rem;color:var(--muted);}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+  .sync-dot.live{background:var(--green);animation:pdot 2s infinite;}
+  @keyframes pdot{0%,100%{opacity:1}50%{opacity:0.35}}
+  .inbox-btn{background:rgba(168,85,247,0.18);border:1.5px solid rgba(168,85,247,0.45);border-radius:14px;padding:7px 13px;color:var(--text);font-family:'Fredoka One',cursive;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;}
+  .inbox-btn:hover{background:rgba(168,85,247,0.3);}
+  .inbox-unread{background:#EF4444;color:white;border-radius:50%;width:20px;height:20px;font-size:0.68rem;font-weight:900;display:none;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;animation:pred 1.5s infinite;}
+  @keyframes pred{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+
+  /* UPDATE BANNER */
+  .update-banner{background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);border-radius:14px;padding:10px 14px;margin-bottom:10px;display:none;align-items:center;gap:10px;font-size:0.82rem;font-weight:700;}
+  .update-banner.show{display:flex;}
+  .update-btn{background:var(--purple);border:none;border-radius:10px;padding:5px 12px;color:white;font-weight:800;font-size:0.8rem;cursor:pointer;font-family:'Nunito',sans-serif;margin-left:auto;}
+
+  /* SCOREBOARD */
+  .scoreboard{background:var(--card);border-radius:20px;padding:14px 16px;margin-bottom:12px;border:1px solid rgba(255,217,61,0.2);}
+  .scoreboard-title{font-size:0.68rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);font-weight:800;margin-bottom:10px;}
+  .score-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .score-avatar{font-size:1.4rem;}
+  .score-name{font-family:'Fredoka One',cursive;font-size:0.95rem;flex:1;}
+  .score-pts{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--gold);}
+  .score-bar-wrap{flex:2;background:rgba(255,255,255,0.07);border-radius:6px;height:8px;overflow:hidden;}
+  .score-bar-fill{height:100%;border-radius:6px;transition:width 0.6s ease;}
+  .score-bar-mine{background:var(--color);}
+  .score-bar-rival{background:#FF6B6B;}
+  .unlock-progress{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.06);}
+  .unlock-label{font-size:0.72rem;color:var(--muted);font-weight:700;margin-bottom:4px;display:flex;justify-content:space-between;}
+  .unlock-bar{background:rgba(255,255,255,0.07);border-radius:6px;height:10px;overflow:hidden;}
+  .unlock-bar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--purple),#EC4899);transition:width 0.5s ease;}
+  .unlock-btn{width:100%;margin-top:8px;padding:10px;background:linear-gradient(135deg,var(--purple),#EC4899);border:none;border-radius:14px;color:white;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;animation:glow 2s infinite;}
+  @keyframes glow{0%,100%{box-shadow:0 0 8px rgba(168,85,247,0.5)}50%{box-shadow:0 0 20px rgba(168,85,247,0.8)}}
+
+  /* QUOTE */
+  .quote-card{background:linear-gradient(135deg,#1E293B,#263348);border:1px solid rgba(168,85,247,0.25);border-radius:20px;padding:14px 16px;margin-bottom:10px;position:relative;}
+  .quote-card::before{content:'💡';position:absolute;top:12px;right:14px;font-size:1.2rem;opacity:0.45;}
+  .quote-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:2px;color:var(--purple);font-weight:800;margin-bottom:5px;}
+  .quote-text{font-size:0.9rem;font-weight:700;line-height:1.4;}
+  .quote-reflection{font-size:0.75rem;color:var(--muted);margin-top:5px;font-style:italic;}
+
+  /* TONIGHT */
+  .tonight-card{background:var(--card);border-radius:16px;padding:10px 14px;margin-bottom:10px;border:1px solid rgba(255,217,61,0.18);display:flex;align-items:center;gap:12px;}
+  .tonight-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:2px;color:var(--gold);font-weight:800;margin-bottom:3px;}
+  .tonight-emoji{font-size:1.8rem;}
+
+  /* XP */
+  .xp-bar-wrap{background:var(--card);border-radius:18px;padding:11px 14px;margin-bottom:10px;}
+  .xp-bar-top{display:flex;justify-content:space-between;margin-bottom:7px;}
+  .xp-label{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--color);}
+  .xp-value{font-size:0.85rem;font-weight:800;color:var(--gold);}
+  .xp-bar{height:9px;background:rgba(255,255,255,0.07);border-radius:9px;overflow:hidden;}
+  .xp-bar-fill{height:100%;border-radius:9px;background:var(--color);transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+
+  /* EARNINGS */
+  .earnings-strip{background:linear-gradient(135deg,rgba(255,217,61,0.1),rgba(255,217,61,0.05));border:1px solid rgba(255,217,61,0.25);border-radius:16px;padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+  .earnings-amount{font-family:'Fredoka One',cursive;font-size:1.4rem;color:var(--gold);}
+  .earnings-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--gold);font-weight:800;}
+  .earnings-days{font-size:0.72rem;color:var(--muted);}
+
+  /* DEVICE STATUS */
+  .device-status{border-radius:18px;padding:12px;margin-bottom:10px;text-align:center;}
+  .device-locked{background:rgba(239,68,68,0.1);border:2px solid rgba(239,68,68,0.3);}
+  .device-unlocked{background:rgba(34,197,94,0.1);border:2px solid rgba(34,197,94,0.3);animation:pgreen 2s infinite;}
+  @keyframes pgreen{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.3)}50%{box-shadow:0 0 0 8px rgba(34,197,94,0)}}
+  .device-icon{font-size:1.8rem;margin-bottom:3px;}
+  .device-label{font-family:'Fredoka One',cursive;font-size:1rem;}
+
+  /* COMPLETE */
+  .complete-banner{background:rgba(34,197,94,0.1);border:2px solid rgba(34,197,94,0.35);border-radius:18px;padding:16px;text-align:center;margin-bottom:10px;display:none;animation:pop 0.5s cubic-bezier(0.34,1.56,0.64,1);}
+  @keyframes pop{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+  .complete-banner.show{display:block;}
+  .complete-emoji{font-size:2.2rem;margin-bottom:5px;}
+  .complete-title{font-family:'Fredoka One',cursive;font-size:1.2rem;color:var(--green);}
+
+  /* GAMES BTN */
+  .games-btn{width:100%;padding:13px;background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(168,85,247,0.35));border:2px solid rgba(168,85,247,0.45);border-radius:18px;color:var(--text);font-family:'Fredoka One',cursive;font-size:1.05rem;cursor:pointer;margin-bottom:10px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .games-btn:hover{transform:translateY(-2px);box-shadow:0 5px 18px rgba(168,85,247,0.3);}
+
+  /* SECTIONS */
+  .section{margin-bottom:10px;}
+  .section-header{display:flex;align-items:center;gap:7px;margin-bottom:7px;padding:0 2px;}
+  .section-title{font-family:'Fredoka One',cursive;font-size:0.95rem;color:var(--muted);}
+  .section-count{margin-left:auto;font-size:0.7rem;font-weight:800;}
+
+  /* TIME LOCK */
+  .time-lock{background:rgba(0,0,0,0.3);border:2px dashed rgba(255,255,255,0.07);border-radius:16px;padding:13px;margin-bottom:8px;text-align:center;}
+  .time-lock-icon{font-size:1.6rem;margin-bottom:3px;}
+  .time-lock-title{font-family:'Fredoka One',cursive;font-size:0.95rem;color:var(--muted);}
+  .time-lock-sub{font-size:0.72rem;color:var(--muted);margin-top:2px;}
+  .time-lock-countdown{font-family:'Fredoka One',cursive;font-size:1.1rem;color:var(--gold);margin-top:5px;}
+
+  /* CHORES */
+  .chore-item{background:var(--card);border-radius:16px;padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:all 0.2s;min-height:54px;}
+  .chore-item:active{transform:scale(0.98);}
+  .chore-item.done{opacity:0.5;background:var(--card2);}
+  .chore-item.done .chore-name{text-decoration:line-through;color:var(--muted);}
+  .chore-check{width:32px;height:32px;border-radius:50%;border:3px solid var(--color);display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;transition:all 0.22s;}
+  .chore-item.done .chore-check{background:var(--color);}
+  .chore-check-inner{opacity:0;transition:opacity 0.18s;color:white;font-weight:900;}
+  .chore-item.done .chore-check-inner{opacity:1;}
+  .chore-body{flex:1;min-width:0;}
+  .chore-name{font-weight:800;font-size:0.88rem;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .chore-detail{font-size:0.7rem;color:var(--muted);margin-top:1px;}
+  .chore-xp{font-size:0.68rem;font-weight:800;padding:2px 7px;border-radius:9px;background:rgba(255,217,61,0.1);color:var(--gold);flex-shrink:0;}
+  .goal-item{background:linear-gradient(135deg,var(--card),var(--card2));border:2px dashed rgba(168,85,247,0.35);border-radius:16px;padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:all 0.2s;min-height:54px;}
+  .goal-item.done{opacity:0.5;border-style:solid;border-color:rgba(34,197,94,0.35);}
+  .goal-text{flex:1;font-weight:800;font-size:0.88rem;}
+  .goal-check{font-size:1.3rem;}
+
+  /* BREAKFAST */
+  .dice-btn{background:rgba(255,217,61,0.13);border:1.5px solid rgba(255,217,61,0.35);border-radius:9px;color:var(--gold);font-size:0.8rem;padding:2px 8px;cursor:pointer;font-weight:800;transition:all 0.15s;white-space:nowrap;font-family:'Nunito',sans-serif;}
+  .dice-btn:active{transform:scale(0.9) rotate(20deg);}
+  .breakfast-suggestion{margin-top:7px;background:rgba(255,217,61,0.06);border:1px solid rgba(255,217,61,0.18);border-radius:9px;padding:7px 9px;display:none;}
+  .breakfast-suggestion.show{display:block;}
+  .breakfast-suggestion-name{font-size:0.8rem;font-weight:800;color:var(--gold);margin-bottom:1px;}
+  .breakfast-suggestion-desc{font-size:0.7rem;color:var(--muted);margin-bottom:4px;}
+  .breakfast-suggestion-link{font-size:0.7rem;font-weight:800;color:var(--gold);text-decoration:none;background:rgba(255,217,61,0.1);padding:2px 7px;border-radius:9px;display:inline-block;}
+
+  /* BOTTOM */
+  .bottom-btn{width:100%;padding:12px;background:var(--card2);border:1px solid rgba(255,255,255,0.07);border-radius:14px;color:var(--muted);font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;margin-top:7px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+  .no-device-panel{background:var(--card);border-radius:16px;padding:13px 15px;margin-top:7px;display:none;}
+  .no-device-panel.open{display:block;}
+  .no-device-title{font-family:'Fredoka One',cursive;font-size:0.9rem;margin-bottom:7px;color:var(--gold);}
+  .no-device-item{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.82rem;font-weight:700;}
+  .no-device-item:last-child{border:none;}
+
+  /* INBOX MODAL */
+  .inbox-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:100;align-items:flex-end;justify-content:center;}
+  .inbox-modal.open{display:flex;}
+  .inbox-box{background:var(--card);border-radius:24px 24px 0 0;padding:22px 18px 44px;width:100%;max-width:480px;max-height:82vh;overflow-y:auto;border-top:2px solid rgba(168,85,247,0.4);}
+  .inbox-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .inbox-title{font-family:'Fredoka One',cursive;font-size:1.25rem;}
+  .inbox-close{background:var(--card2);border:none;color:var(--text);border-radius:9px;padding:5px 11px;font-size:0.8rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;}
+  .inbox-empty{text-align:center;padding:28px;color:var(--muted);font-size:0.85rem;}
+  .inbox-empty-icon{font-size:2.8rem;margin-bottom:8px;}
+  .message-card{background:var(--card2);border-radius:15px;padding:13px 15px;margin-bottom:9px;border-left:4px solid rgba(168,85,247,0.45);}
+  .message-card.unread{border-left-color:var(--gold);background:rgba(255,217,61,0.06);}
+  .message-from{font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--purple);font-weight:800;margin-bottom:4px;}
+  .message-card.unread .message-from{color:var(--gold);}
+  .message-emoji-big{font-size:2rem;margin-bottom:4px;}
+  .message-text{font-weight:700;font-size:0.88rem;line-height:1.4;}
+  .message-time{font-size:0.65rem;color:var(--muted);margin-top:5px;}
+  .reply-row{display:flex;gap:7px;margin-top:10px;}
+  .reply-input{flex:1;background:var(--card);border:1.5px solid rgba(255,255,255,0.1);border-radius:11px;padding:8px 11px;color:var(--text);font-family:'Nunito',sans-serif;font-size:0.82rem;font-weight:600;outline:none;}
+  .reply-input:focus{border-color:rgba(168,85,247,0.5);}
+  .reply-btn{background:var(--purple);border:none;border-radius:11px;padding:8px 14px;color:white;font-family:'Fredoka One',cursive;font-size:0.88rem;cursor:pointer;white-space:nowrap;}
+
+  /* GAME MODAL */
+  .game-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:100;align-items:center;justify-content:center;padding:16px;}
+  .game-modal.open{display:flex;}
+  .game-box{background:var(--card);border-radius:26px;padding:20px 17px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;position:relative;border:2px solid rgba(168,85,247,0.4);}
+  .game-close{position:absolute;top:12px;right:13px;background:var(--card2);border:none;color:var(--text);border-radius:9px;padding:5px 10px;font-size:0.8rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;}
+  .game-title{font-family:'Fredoka One',cursive;font-size:1.35rem;margin-bottom:3px;}
+  .game-score-badge{display:inline-block;background:rgba(255,217,61,0.1);border:1px solid rgba(255,217,61,0.28);border-radius:18px;padding:3px 11px;font-size:0.72rem;font-weight:800;color:var(--gold);margin-bottom:12px;}
+  .game-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:7px;}
+  .game-pick{background:var(--card2);border:2px solid transparent;border-radius:16px;padding:15px 9px;text-align:center;cursor:pointer;transition:all 0.2s;}
+  .game-pick:hover{border-color:rgba(168,85,247,0.55);transform:scale(1.03);}
+  .game-pick-icon{font-size:1.9rem;margin-bottom:5px;}
+  .game-pick-name{font-family:'Fredoka One',cursive;font-size:0.9rem;}
+  .game-pick-desc{font-size:0.68rem;color:var(--muted);margin-top:2px;}
+  .game-question{background:var(--card2);border-radius:15px;padding:14px;margin:11px 0;font-weight:800;font-size:0.96rem;line-height:1.4;text-align:center;min-height:68px;display:flex;align-items:center;justify-content:center;}
+  .game-options{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:11px;}
+  .game-option{background:var(--card2);border:2px solid rgba(255,255,255,0.09);border-radius:12px;padding:10px 7px;text-align:center;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.85rem;color:var(--text);transition:all 0.14s;}
+  .game-option:hover:not(:disabled){border-color:rgba(168,85,247,0.5);background:rgba(168,85,247,0.1);}
+  .game-option.correct{background:rgba(34,197,94,0.18);border-color:#22C55E;color:#22C55E;}
+  .game-option.wrong{background:rgba(239,68,68,0.18);border-color:#EF4444;color:#EF4444;}
+  .game-input-row{display:flex;gap:7px;margin-bottom:11px;}
+  .game-input{flex:1;background:var(--card2);border:2px solid rgba(255,255,255,0.13);border-radius:12px;padding:10px 13px;color:var(--text);font-family:'Fredoka One',cursive;font-size:1.15rem;text-align:center;outline:none;}
+  .game-input:focus{border-color:rgba(168,85,247,0.55);}
+  .game-submit{background:var(--purple);border:none;border-radius:12px;padding:10px 15px;color:white;font-family:'Fredoka One',cursive;font-size:0.92rem;cursor:pointer;}
+  .game-feedback{text-align:center;font-family:'Fredoka One',cursive;font-size:1.05rem;min-height:34px;padding:5px;border-radius:9px;margin-bottom:7px;}
+  .game-feedback.correct{color:#22C55E;background:rgba(34,197,94,0.09);}
+  .game-feedback.wrong{color:#EF4444;background:rgba(239,68,68,0.09);}
+  .game-next-btn{width:100%;background:var(--purple);border:none;border-radius:12px;padding:12px;color:white;font-family:'Fredoka One',cursive;font-size:0.96rem;cursor:pointer;display:none;margin-bottom:7px;}
+  .game-next-btn.show{display:block;}
+  .game-back-btn{background:var(--card2);border:none;color:var(--muted);border-radius:10px;padding:8px 13px;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.8rem;cursor:pointer;width:100%;}
+  .spell-word-display{font-family:'Fredoka One',cursive;font-size:1.7rem;text-align:center;color:var(--gold);padding:13px;background:var(--card2);border-radius:15px;margin:11px 0;letter-spacing:4px;}
+  .spell-hint{font-size:0.78rem;color:var(--muted);text-align:center;margin-bottom:7px;}
+
+  /* BONUS GAME MODAL */
+  .bonus-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:200;flex-direction:column;align-items:center;justify-content:center;}
+  .bonus-modal.open{display:flex;}
+  .bonus-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,0.1);border:none;color:white;border-radius:12px;padding:8px 14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.9rem;cursor:pointer;}
+  #bonus-canvas{border-radius:12px;touch-action:none;}
+  .bonus-score{font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--gold);margin-bottom:10px;}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:white;padding:10px 20px;border-radius:38px;font-weight:800;font-size:0.88rem;z-index:999;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,0.3);}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  /* LOADING */
+  .loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:300;transition:opacity 0.5s;}
+  .loading-screen.hidden{opacity:0;pointer-events:none;}
+  .loading-avatar{font-size:4rem;margin-bottom:14px;animation:bounce 1s infinite;}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  .loading-text{font-family:'Fredoka One',cursive;font-size:1.35rem;color:var(--color);}
+
+  /* PHOTO */
+  .photo-btn { background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.15); border-radius: 9px; padding: 4px 9px; font-size: 0.8rem; cursor: pointer; transition: all 0.15s; flex-shrink: 0; font-family: 'Nunito', sans-serif; font-weight: 700; color: var(--muted); }
+  .photo-btn:active { transform: scale(0.92); }
+  .photo-btn.has-photo { color: var(--green); border-color: rgba(34,197,94,0.4); background: rgba(34,197,94,0.08); }
+  .photo-input { display: none; }
+  .photo-thumb { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; flex-shrink: 0; cursor: pointer; border: 2px solid rgba(34,197,94,0.4); }
+
+
+  /* BONUS CHALLENGE */
+  .bonus-section { background: linear-gradient(135deg, rgba(236,72,153,0.12), rgba(168,85,247,0.12)); border: 2px dashed rgba(236,72,153,0.45); border-radius: 20px; padding: 14px 15px; margin-bottom: 10px; }
+  .bonus-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .bonus-badge { background: linear-gradient(135deg, #EC4899, #A855F7); border-radius: 9px; padding: 3px 9px; font-size: 0.65rem; font-weight: 900; color: white; letter-spacing: 1px; text-transform: uppercase; }
+  .bonus-title { font-family: 'Fredoka One', cursive; font-size: 1rem; flex: 1; }
+  .bonus-xp { font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 9px; background: rgba(236,72,153,0.15); color: #EC4899; }
+  .bonus-desc { font-size: 0.78rem; color: var(--muted); margin-bottom: 10px; line-height: 1.4; }
+  .challenge-picker { width: 100%; background: var(--card); border: 1.5px solid rgba(168,85,247,0.35); border-radius: 12px; padding: 9px 12px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 700; outline: none; margin-bottom: 10px; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2394A3B8' d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+  .challenge-picker:focus { border-color: rgba(168,85,247,0.6); }
+  .bonus-photo-row { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+  .bonus-photo-btn { background: rgba(236,72,153,0.15); border: 1.5px solid rgba(236,72,153,0.4); border-radius: 11px; padding: 8px 14px; color: #EC4899; font-family: 'Fredoka One', cursive; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; flex-shrink: 0; }
+  .bonus-photo-btn.taken { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.4); color: var(--green); }
+  .bonus-photo-preview { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; border: 2px solid rgba(34,197,94,0.4); display: none; }
+  .bonus-complete-btn { width: 100%; padding: 11px; background: linear-gradient(135deg, #EC4899, #A855F7); border: none; border-radius: 13px; color: white; font-family: 'Fredoka One', cursive; font-size: 1rem; cursor: pointer; transition: all 0.2s; }
+  .bonus-complete-btn:disabled { opacity: 0.4; cursor: default; }
+  .bonus-complete-btn:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(236,72,153,0.4); }
+  .bonus-done-strip { background: rgba(34,197,94,0.1); border: 2px solid rgba(34,197,94,0.3); border-radius: 14px; padding: 10px 14px; text-align: center; font-family: 'Fredoka One', cursive; color: var(--green); font-size: 0.95rem; }
+  .penalty-item { background: rgba(239,68,68,0.07); border: 2px solid rgba(239,68,68,0.25); border-radius: 16px; padding: 11px 13px; margin-bottom: 7px; display: flex; align-items: center; gap: 11px; cursor: pointer; transition: all 0.2s; min-height: 54px; }
+  .penalty-item.done { opacity: 0.5; }
+  .penalty-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; color: #EF4444; font-weight: 900; margin-bottom: 3px; }
+
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading-screen">
+  <div class="loading-avatar">🐺</div>
+  <div class="loading-text">Loading Emmet's Quest...</div>
+</div>
+
+<div class="app">
+  <div class="top-bar">
+    <div>
+      <div class="player-name">🐺 Emmet</div>
+      <div class="player-sub">Age 15 · Crush it!</div>
+    </div>
+    <div class="date-pill" id="date-pill"></div>
+  </div>
+
+  <div class="sub-bar">
+    <div class="sync-row">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-label">Connecting...</span>
+    </div>
+    <button class="inbox-btn" onclick="openInbox()">
+      📬 Messages <span class="inbox-unread" id="inbox-badge">0</span>
+    </button>
+  </div>
+
+  <div class="update-banner" id="update-banner">
+    🆕 New update ready!
+    <button class="update-btn" onclick="location.reload()">Refresh</button>
+  </div>
+
+  <div class="quote-card">
+    <div class="quote-label">Today's Focus</div>
+    <div class="quote-text" id="daily-quote"></div>
+    <div class="quote-reflection" id="daily-prompt"></div>
+  </div>
+
+  <div class="tonight-card">
+    <div class="tonight-emoji" id="tonight-emoji">🎬</div>
+    <div>
+      <div class="tonight-label">Tonight</div>
+      <div style="font-weight:800;font-size:0.9rem" id="tonight-text"></div>
+      <div style="font-size:0.72rem;color:var(--muted)" id="tonight-sub"></div>
+    </div>
+  </div>
+
+  <div class="xp-bar-wrap">
+    <div class="xp-bar-top">
+      <span class="xp-label">⭐ XP Today</span>
+      <span class="xp-value" id="xp-display">0 / 0 XP</span>
+    </div>
+    <div class="xp-bar"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
+  </div>
+
+  <!-- SCOREBOARD -->
+  <div class="scoreboard">
+    <div class="scoreboard-title">🏆 Brothers Scoreboard</div>
+    <div class="score-row">
+      <span class="score-avatar">🐺</span>
+      <span class="score-name">Emmet (You)</span>
+      <div class="score-bar-wrap"><div class="score-bar-fill score-bar-mine" id="my-score-bar" style="width:0%"></div></div>
+      <span class="score-pts" id="my-score-pts">0</span>
+    </div>
+    <div class="score-row">
+      <span class="score-avatar">🦊</span>
+      <span class="score-name">Sam</span>
+      <div class="score-bar-wrap"><div class="score-bar-fill score-bar-rival" id="rival-score-bar" style="width:0%"></div></div>
+      <span class="score-pts" id="rival-score-pts">0</span>
+    </div>
+    <div class="unlock-progress">
+      <div class="unlock-label">
+        <span>🎮 Bonus Game Unlock</span>
+        <span id="unlock-pts-label">0 / 500 pts</span>
+      </div>
+      <div class="unlock-bar"><div class="unlock-bar-fill" id="unlock-bar" style="width:0%"></div></div>
+      <button class="unlock-btn" id="unlock-btn" onclick="openBonusGame()" style="display:none">🎮 BONUS GAME UNLOCKED — Play Now!</button>
+    </div>
+  </div>
+
+  <div class="earnings-strip">
+    <div style="font-size:1.7rem">💰</div>
+    <div>
+      <div class="earnings-label">Total Earned</div>
+      <div class="earnings-amount" id="earnings-amount">$0</div>
+      <div class="earnings-days" id="earnings-days">0 days completed</div>
+    </div>
+  </div>
+
+  <div class="device-status device-locked" id="device-status">
+    <div class="device-icon">🔒</div>
+    <div class="device-label" style="color:#EF4444">Devices Locked</div>
+    <div style="font-size:0.72rem;color:var(--muted);margin-top:2px" id="device-sub">Complete all tasks to unlock!</div>
+  </div>
+
+  <div class="complete-banner" id="complete-banner">
+    <div class="complete-emoji">🎉</div>
+    <div class="complete-title">Quest Complete!</div>
+    <div style="font-size:0.8rem;color:var(--muted);margin-top:3px">You crushed it Emmet! Ask Mom or Dad to sign off for your $5 💰</div>
+  </div>
+
+  <button class="games-btn" onclick="openGames()">🎮 Mini-Games &nbsp;<span style="font-size:0.72rem;opacity:0.7">Math · Spelling · Geo · Trivia</span></button>
+
+  <div id="chore-container"></div>
+
+  <!-- BONUS CHALLENGE -->
+  <div class="bonus-section" id="bonus-challenge-section"></div>
+
+  <button class="bottom-btn" onclick="document.getElementById('no-device-panel').classList.toggle('open')">💡 No-Device Activity Ideas</button>
+  <div class="no-device-panel" id="no-device-panel">
+    <div class="no-device-title">🚀 Chill Night Ideas</div>
+    <div class="no-device-item"><span>🎲</span> Board game — Catan, chess, Ticket to Ride</div>
+    <div class="no-device-item"><span>🎨</span> Draw a character or world map</div>
+    <div class="no-device-item"><span>🏀</span> Shoot hoops or kick a ball outside</div>
+    <div class="no-device-item"><span>📚</span> Read — graphic novels count!</div>
+    <div class="no-device-item"><span>🃏</span> Learn a card trick</div>
+    <div class="no-device-item"><span>🍳</span> Make a snack from scratch</div>
+    <div class="no-device-item"><span>✏️</span> Write a short comic together</div>
+    <div class="no-device-item"><span>🔭</span> Go look at stars or the moon</div>
+    <div class="no-device-item"><span>🧩</span> Work on a puzzle</div>
+    <div class="no-device-item"><span>🥊</span> Practice jujitsu moves safely</div>
+  </div>
+</div>
+
+<!-- INBOX -->
+<div class="inbox-modal" id="inbox-modal">
+  <div class="inbox-box">
+    <div class="inbox-header">
+      <div class="inbox-title">📬 Mom & Dad</div>
+      <button class="inbox-close" onclick="closeInbox()">✕ Close</button>
+    </div>
+    <div id="inbox-list"></div>
+  </div>
+</div>
+
+<!-- GAME MODAL -->
+<div class="game-modal" id="game-modal">
+  <div class="game-box">
+    <button class="game-close" onclick="closeGames()">✕ Close</button>
+    <div id="game-area"></div>
+  </div>
+</div>
+
+<!-- BONUS GAME -->
+<div class="bonus-modal" id="bonus-modal">
+  <button class="bonus-close" onclick="closeBonusGame()">✕ Close</button>
+  <div class="bonus-score" id="bonus-score">Score: 0</div>
+  <canvas id="bonus-canvas" width="340" height="460"></canvas>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, onValue, set, get, push, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBCBjpbT9dA7ei-6ANQncgNA24909se-9Y",
+  authDomain: "mattie-quest.firebaseapp.com",
+  databaseURL: "https://mattie-quest-default-rtdb.firebaseio.com",
+  projectId: "mattie-quest",
+  storageBucket: "mattie-quest.firebasestorage.app",
+  messagingSenderId: "23486727677",
+  appId: "1:23486727677:web:4ab902631f5e7cadc10594"
+};
+const fbApp = initializeApp(firebaseConfig, 'emmet');
+const db = getDatabase(fbApp);
+
+// ── DATE ─────────────────────────────────────────────────────────────────────
+const today = new Date();
+const dayOfWeek = today.getDay();
+const dateNum = today.getDate();
+const isEven = dateNum % 2 === 0;
+const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+const isMonday = dayOfWeek === 1, isTuesday = dayOfWeek === 2;
+const isWednesday = dayOfWeek === 3, isThursday = dayOfWeek === 4;
+const todayKey = today.toISOString().slice(0,10);
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// ── QUOTES ───────────────────────────────────────────────────────────────────
+const quotes = [
+  {text:"Small steps every day beat big leaps once in a while.",prompt:"What's one small thing you did today that made you better?"},
+  {text:"Champions do things they don't always feel like doing.",prompt:"What was something hard you pushed through today?"},
+  {text:"Your future self is watching you right now through your memories.",prompt:"What would your future self want you to do today?"},
+  {text:"The secret is: just start. That's it.",prompt:"What did you start today that you've been putting off?"},
+  {text:"Discipline is choosing what you want most over what you want right now.",prompt:"What are you working toward that needs patience?"},
+  {text:"You grow most in the moments you're most uncomfortable.",prompt:"Where did you feel challenged today and push through?"},
+  {text:"Every expert was once a beginner who didn't quit.",prompt:"What skill are you getting better at, little by little?"},
+];
+
+// ── CHORES ───────────────────────────────────────────────────────────────────
+const SECTION_TIMES = {Morning:0,Chores:7,Hygiene:20,Weekend:0,'My Goal':0,'⚠️ Penalty Chores':0,'🔥 Bonus Challenge':0};
+function getChores() {
+  const c = [];
+  c.push({id:'breakfast',section:'Morning',emoji:'🥚',name:'Protein Breakfast',detail:'Eggs, yogurt, protein shake – fuel up right!',xp:5});
+  c.push({id:'vitamin',section:'Morning',emoji:'💊',name:'Take Vitamin',detail:'With breakfast',xp:5});
+  if (isTuesday || isThursday) c.push({id:'hiit',section:'Morning',emoji:'🏃',name:'HIT Class',detail:'5:30 AM – counts as exercise!',xp:20});
+  if (isWednesday) c.push({id:'trash',section:'Chores',emoji:'🗑️',name:'Take Cans to the Street',detail:'🚨 Pickup is THURSDAY – roll all cans to the street tonight!',xp:20});
+  else if (!isEven && !isWednesday) c.push({id:'trash',section:'Chores',emoji:'🗑️',name:'Take Out Trash',detail:'Recycling, garbage, AND compost – empty all bins',xp:15});
+  c.push({id:'dog',section:'Chores',emoji:'🐕',name:'Walk the Dog',detail:'School loop – you know it!',xp:15});
+  c.push({id:'common',section:'Chores',emoji:'🧹',name:'Clean Common Area',detail:'Backpack, shoes, jacket, homework away',xp:10});
+  if (!isTuesday && !isThursday && !isMonday && !isWednesday) c.push({id:'exercise',section:'Chores',emoji:'⚡',name:'Exercise 1 Hour',detail:'Your choice – make it count!',xp:20});
+  if (isMonday || isWednesday) c.push({id:'jujitsu',section:'Chores',emoji:'🥋',name:'Jujitsu',detail:'5:30–6:30 PM – counts as exercise!',xp:20});
+  if (isTuesday || isThursday) c.push({id:'dessert',section:'Chores',emoji:'🍰',name:'Make Dessert (if your turn)',detail:'Check with Mom or Dad – whose turn?',xp:15});
+  c.push({id:'shower',section:'Hygiene',emoji:'🚿',name:'Shower',detail:'After activities or before bed',xp:10});
+  if (isWeekend) {
+    c.push({id:'laundry_wash',section:'Weekend',emoji:'👕',name:'Start Laundry',detail:'Separate and wash clothes',xp:10});
+    c.push({id:'laundry_fold',section:'Weekend',emoji:'🧺',name:'Fold Laundry',detail:'Fold everything neatly',xp:10});
+    c.push({id:'laundry_put',section:'Weekend',emoji:'🗄️',name:'Put Laundry Away',detail:'Back in drawers and closet',xp:10});
+  }
+  c.push({id:'goal',section:'My Goal',emoji:'🎯',name:"Emmet's Personal Goal",detail:'Your own goal – tap to check off!',xp:15,isGoal:true});
+  return c;
+}
+
+
+// ── CHORES FOR A GIVEN DAY (used for penalty calc) ────────────────────────────
+function getChoresForDay(who, wd, dn, even, weekend, mon, tue, wed, thu) {
+  const c = [];
+  c.push({id:'breakfast'});c.push({id:'vitamin'});
+  if (tue || thu) c.push({id:'hiit'});
+  if (!even) c.push({id:'trash'});
+  if (wed) c.push({id:'trash'});
+  c.push({id:'dog'});c.push({id:'common'});
+  if (!tue && !thu && !mon && !wed) c.push({id:'exercise'});
+  if (mon || wed) c.push({id:'jujitsu'});
+  if (tue || thu) c.push({id:'dessert'});
+  c.push({id:'shower'});
+  if (weekend) { c.push({id:'laundry_wash'});c.push({id:'laundry_fold'});c.push({id:'laundry_put'}); }
+  return c;
+}
+
+// ── PENALTY CHORES (from yesterday's misses) ─────────────────────────────────
+const PENALTY_POOL_HOUSEHOLD = [
+  {id:'pen_bathroom',  emoji:'🚽', name:'Scrub the Bathroom',      detail:'Toilet, sink, mirror – make it shine', xp:20},
+  {id:'pen_vacuum',    emoji:'🧹', name:'Vacuum Living Room',       detail:'Move the cushions, get under the couch', xp:15},
+  {id:'pen_dishes2',   emoji:'🍽️', name:'Hand-wash All Dishes',     detail:'Everything in the sink – wash, dry, put away', xp:15},
+  {id:'pen_sweep',     emoji:'🧺', name:'Sweep & Mop Kitchen',      detail:'Sweep first, then mop', xp:15},
+  {id:'pen_wipe',      emoji:'🧽', name:'Wipe Down All Counters',   detail:'Kitchen + bathrooms', xp:10},
+  {id:'pen_trash2',    emoji:'🗑️', name:'Empty ALL Trash Cans',     detail:'Every room, replace bags too', xp:10},
+  {id:'pen_organize',  emoji:'📦', name:'Organize Your Room',       detail:'Everything off the floor and in its place', xp:15},
+  {id:'pen_windows',   emoji:'🪟', name:'Clean the Windows',        detail:'Windex + paper towel, inside faces', xp:10},
+];
+const PENALTY_POOL_EXERCISE = [
+  {id:'pen_pushups',   emoji:'💪', name:'50 Push-ups',              detail:'Can break into sets – no quitting!', xp:15},
+  {id:'pen_run',       emoji:'🏃', name:'Run 1 Mile',               detail:'Outside, no walking', xp:20},
+  {id:'pen_plank',     emoji:'🧘', name:'3-Minute Plank',           detail:'Total – can break into sets', xp:15},
+  {id:'pen_situps',    emoji:'🔥', name:'75 Sit-ups',               detail:'All the way up, all the way down', xp:15},
+  {id:'pen_squats',    emoji:'🦵', name:'100 Squats',               detail:'Bodyweight, full depth', xp:15},
+  {id:'pen_burpees',   emoji:'⚡', name:'25 Burpees',               detail:'Full burpee – jump at the top', xp:20},
+  {id:'pen_bike',      emoji:'🚲', name:'Bike 3 Miles',             detail:'Outside – no coasting the whole time!', xp:20},
+  {id:'pen_jumping',   emoji:'🎽', name:'200 Jumping Jacks',        detail:'In sets if needed', xp:10},
+];
+
+let penaltyChores = []; // populated async on load
+
+function seededRandom(seed) {
+  let x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+async function loadPenaltyChores(who) {
+  try {
+  const yest = new Date(); yest.setDate(yest.getDate() - 1);
+  const yestKey = yest.toISOString().slice(0,10);
+  const yestRef = ref(db, `days/${yestKey}/${who}`);
+  const snap = await get(yestRef);
+  const yestState = snap.val() || {};
+
+  // Get yesterday's expected chores
+  const yestDay = yest.getDay();
+  const yestDate = yest.getDate();
+  const yestEven = yestDate % 2 === 0;
+  const yestWeekend = yestDay === 0 || yestDay === 6;
+  const yestMon = yestDay===1, yestTue = yestDay===2, yestWed = yestDay===3, yestThu = yestDay===4;
+
+  const yestChores = getChoresForDay(who, yestDay, yestDate, yestEven, yestWeekend, yestMon, yestTue, yestWed, yestThu);
+  const missed = yestChores.filter(c => !c.isGoal && !c.isBonusChallenge && !yestState[c.id]);
+
+  if (missed.length === 0) { penaltyChores = []; render(); return; }
+
+  // Pick one random penalty per missed chore, alternating household/exercise
+  const used = new Set();
+  const penalties = [];
+  const seed = parseInt(yestKey.replace(/-/g,'')) + (who === 'sam' ? 1 : 2);
+  missed.forEach((_, i) => {
+    const pool = i % 2 === 0 ? PENALTY_POOL_EXERCISE : PENALTY_POOL_HOUSEHOLD;
+    const available = pool.filter(p => !used.has(p.id));
+    if (available.length === 0) return;
+    const idx = Math.floor(seededRandom(seed + i * 7) * available.length);
+    const pick = available[idx];
+    used.add(pick.id);
+    penalties.push({...pick, section:'⚠️ Penalty Chores', isPenalty:true,
+      detail: pick.detail + ` (missed: ${missed[i]?.name || 'a chore'} yesterday)`
+    });
+  });
+  penaltyChores = penalties;
+  render();
+  } catch(e) { console.warn("Penalty chores error:", e); }
+}
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let dayState = {};
+let earnings = {totalDays:0,totalAmount:0};
+let myGameScore = 0, rivalGameScore = 0;
+
+const dayRef = ref(db, `days/${todayKey}/emmet`);
+const earningsRef = ref(db, `earnings/emmet`);
+const myScoreRef = ref(db, `scores/emmet`);
+const rivalScoreRef = ref(db, `scores/sam`);
+const messagesRef = ref(db, 'messages/emmet');
+const repliesRef = ref(db, 'replies/emmet');
+
+function isSectionUnlocked(s) { return new Date().getHours() >= (SECTION_TIMES[s] ?? 0); }
+function formatUnlockTime(h) { return h===0?'now':`${h>12?h-12:h}:00 ${h>=12?'PM':'AM'}`; }
+function getTimeUntil(h) {
+  const now=new Date(),t=new Date();t.setHours(h,0,0,0);
+  if(t<=now)return null;
+  const d=t-now,hrs=Math.floor(d/3600000),mins=Math.floor((d%3600000)/60000);
+  return hrs>0?`${hrs}h ${mins}m`:`${mins}m`;
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  const chores = getChores();
+  const container = document.getElementById('chore-container');
+  container.innerHTML = '';
+  // Add penalty chores to list
+  const allChores = [...penaltyChores, ...chores];
+  const sections = {};
+  allChores.forEach(c => { if(!sections[c.section])sections[c.section]=[]; sections[c.section].push(c); });
+  const icons = {Morning:'🌅',Chores:'⚔️',Hygiene:'✨',Weekend:'🏠','My Goal':'🎯'};
+
+  Object.entries(sections).forEach(([sec,items]) => {
+    const unlockHour = SECTION_TIMES[sec]??0;
+    const unlocked = isSectionUnlocked(sec);
+    const secDone = items.filter(i => dayState[i.id]).length;
+    const secDiv = document.createElement('div');
+    secDiv.className = 'section';
+
+    if (!unlocked && unlockHour > 0) {
+      const cd = getTimeUntil(unlockHour);
+      secDiv.innerHTML = `<div class="time-lock"><div class="time-lock-icon">🔒</div><div class="time-lock-title">${icons[sec]||'📋'} ${sec}</div><div class="time-lock-sub">Unlocks at ${formatUnlockTime(unlockHour)}</div>${cd?`<div class="time-lock-countdown">⏳ ${cd}</div>`:''}</div>`;
+      container.appendChild(secDiv);
+      return;
+    }
+
+    secDiv.innerHTML = `<div class="section-header"><span style="font-size:1.05rem">${icons[sec]||'📋'}</span><span class="section-title">${sec}</span><span class="section-count" style="color:${secDone===items.length?'var(--green)':'var(--muted)'};">${secDone}/${items.length} ✓</span></div>`;
+
+    items.forEach(c => {
+      const done = !!dayState[c.id];
+      const locked = dayState._locked && dayState._locked[c.id];
+      if (c.isGoal) {
+        const el = document.createElement('div');
+        el.className = `goal-item${done?' done':''}`;
+        if (!locked) el.onclick = () => toggleChore(c.id, chores);
+        if (locked) { el.style.opacity='0.35'; el.style.cursor='not-allowed'; }
+        el.innerHTML = `<span style="font-size:1.4rem">${c.emoji}</span><div class="goal-text">${c.name}<br><span style="font-size:0.7rem;color:var(--muted)">${c.detail}</span></div><span class="goal-check">${done?'✅':'⭕'}</span><span class="chore-xp">+${c.xp}</span>`;
+        secDiv.appendChild(el);
+      } else {
+        const el = document.createElement('div');
+        el.className = c.isPenalty ? `penalty-item${done?' done':''}` : `chore-item${done?' done':''}`;
+        if (!locked) el.onclick = () => toggleChore(c.id, allChores);
+        if (locked) { el.style.opacity='0.35'; el.style.cursor='not-allowed'; el.title='Locked by parent'; }
+        const hasPhoto = dayState['_photo_'+c.id];
+        el.innerHTML = (c.isPenalty ? `<div class="penalty-label">⚠️ Make-up from yesterday</div>` : '') + `<div class="chore-check"><span class="chore-check-inner">✓</span></div><div class="chore-body"><div class="chore-name">${c.emoji} ${c.name}${c.id==='breakfast'?`<button class="dice-btn" onclick="spinBreakfast(event)">🎲 Idea</button>`:''}</div><div class="chore-detail">${c.detail}</div>${c.id==='breakfast'?`<div class="breakfast-suggestion" id="breakfast-suggestion"><div class="breakfast-suggestion-name"></div><div class="breakfast-suggestion-desc"></div><a class="breakfast-suggestion-link" href="#" target="_blank" rel="noopener">📖 See Recipe →</a></div>`:''}</div><span class="chore-xp">+${c.xp}</span><button id="photo-btn-${c.id}" class="photo-btn${hasPhoto?' has-photo':''}" onclick="triggerPhoto('${c.id}');event.stopPropagation()">${hasPhoto?'📸✓':'📷'}</button><input type="file" accept="image/*" capture="environment" class="photo-input" id="photo-input-${c.id}" onchange="handlePhoto('${c.id}',this)">`;
+        secDiv.appendChild(el);
+      }
+    });
+    container.appendChild(secDiv);
+  });
+  updateUI(allChores);
+  renderBonusSection();
+}
+
+function updateUI(chores) {
+  const totalXP = chores.reduce((s,c) => s+(dayState[c.id]?c.xp:0),0);
+  const maxXP = chores.reduce((s,c) => s+c.xp,0);
+  const pct = maxXP?Math.round(totalXP/maxXP*100):0;
+  const allDone = chores.every(c => dayState[c.id]);
+  const remaining = chores.filter(c => !dayState[c.id]).length;
+  document.getElementById('xp-display').textContent = `${totalXP} / ${maxXP} XP`;
+  document.getElementById('xp-bar').style.width = pct+'%';
+  document.getElementById('earnings-amount').textContent = `$${earnings.totalAmount}`;
+  document.getElementById('earnings-days').textContent = `${earnings.totalDays} day${earnings.totalDays!==1?'s':''} completed`;
+
+  const ds = document.getElementById('device-status');
+  if (allDone) {
+    ds.className='device-status device-unlocked';
+    ds.innerHTML=`<div class="device-icon">🔓</div><div class="device-label" style="color:var(--green)">🎮 Devices Unlocked!</div><div style="font-size:0.72rem;color:var(--muted);margin-top:2px">Games, VR – you earned it!</div>`;
+    document.getElementById('complete-banner').classList.add('show');
+  } else {
+    ds.className='device-status device-locked';
+    ds.innerHTML=`<div class="device-icon">🔒</div><div class="device-label" style="color:#EF4444">Devices Locked</div><div style="font-size:0.72rem;color:var(--muted);margin-top:2px">${remaining} task${remaining!==1?'s':''} left</div>`;
+    document.getElementById('complete-banner').classList.remove('show');
+  }
+  updateScoreboard();
+}
+
+// ── SCORES ───────────────────────────────────────────────────────────────────
+function updateScoreboard() {
+  const max = Math.max(myGameScore, rivalGameScore, 1);
+  document.getElementById('my-score-pts').textContent = myGameScore;
+  document.getElementById('rival-score-pts').textContent = rivalGameScore;
+  document.getElementById('my-score-bar').style.width = Math.round(myGameScore/max*100)+'%';
+  document.getElementById('rival-score-bar').style.width = Math.round(rivalGameScore/max*100)+'%';
+  const pct = Math.min(Math.round(myGameScore/500*100),100);
+  document.getElementById('unlock-bar').style.width = pct+'%';
+  document.getElementById('unlock-pts-label').textContent = `${myGameScore} / 500 pts`;
+  document.getElementById('unlock-btn').style.display = myGameScore >= 500 ? 'block' : 'none';
+}
+
+async function saveScore() {
+  await set(myScoreRef, myGameScore);
+}
+
+// ── TOGGLE ───────────────────────────────────────────────────────────────────
+async function toggleChore(id, chores) {
+  dayState[id] = !dayState[id];
+  const c = chores.find(x => x.id===id);
+  if (dayState[id] && c) showToast(`+${c.xp} XP! ${c.emoji}`);
+  await set(dayRef, dayState);
+  render();
+}
+
+// ── BREAKFAST ────────────────────────────────────────────────────────────────
+const breakfastIdeas = [
+  {name:'🍳 Scrambled Eggs & Toast',desc:'Classic high-protein scrambled eggs',url:'https://www.google.com/search?q=scrambled+eggs+high+protein+breakfast+recipe'},
+  {name:'🥣 Greek Yogurt Parfait',desc:'Yogurt, berries, granola – 20g protein',url:'https://www.google.com/search?q=greek+yogurt+parfait+high+protein+breakfast'},
+  {name:'🥞 Protein Pancakes',desc:'Banana + egg + oat – only 3 ingredients!',url:'https://www.google.com/search?q=3+ingredient+protein+pancakes+recipe'},
+  {name:'🌯 Egg & Cheese Burrito',desc:'Scrambled eggs, cheese, salsa in tortilla',url:'https://www.google.com/search?q=egg+cheese+breakfast+burrito+high+protein'},
+  {name:'🧇 Protein Waffles',desc:'Add protein powder to waffle mix',url:'https://www.google.com/search?q=high+protein+waffles+recipe'},
+  {name:'🍌 PB Banana Smoothie',desc:'PB, banana, milk, protein powder',url:'https://www.google.com/search?q=peanut+butter+banana+protein+smoothie'},
+  {name:'🫐 Overnight Oats',desc:'Oats, milk, chia seeds, berries',url:'https://www.google.com/search?q=high+protein+overnight+oats+recipe'},
+  {name:'🧀 Cottage Cheese Bowl',desc:'25g protein per cup! Top with fruit',url:'https://www.google.com/search?q=cottage+cheese+breakfast+bowl+high+protein'},
+  {name:'🥑 Avocado Toast + Egg',desc:'Smashed avo on toast, poached egg on top',url:'https://www.google.com/search?q=avocado+toast+poached+egg+high+protein'},
+  {name:'🍫 Chocolate Protein Shake',desc:'Chocolate powder, milk, banana, PB',url:'https://www.google.com/search?q=chocolate+peanut+butter+protein+shake+recipe'},
+];
+let lastBIdx = -1;
+window.spinBreakfast = function(event) {
+  event.stopPropagation();
+  let idx; do{idx=Math.floor(Math.random()*breakfastIdeas.length);}while(idx===lastBIdx&&breakfastIdeas.length>1);
+  lastBIdx=idx;
+  const idea=breakfastIdeas[idx];
+  const panel=document.getElementById('breakfast-suggestion');
+  if(!panel)return;
+  panel.classList.remove('show');void panel.offsetWidth;
+  panel.querySelector('.breakfast-suggestion-name').textContent=idea.name;
+  panel.querySelector('.breakfast-suggestion-desc').textContent=idea.desc;
+  panel.querySelector('.breakfast-suggestion-link').href=idea.url;
+  panel.classList.add('show');
+};
+
+// ── INBOX ─────────────────────────────────────────────────────────────────────
+let allMessages = [];
+let readIds = new Set(JSON.parse(localStorage.getItem('emmet_readIds')||'[]'));
+
+function setupInboxListener() {
+  onValue(messagesRef, snap => {
+    allMessages = [];
+    const data = snap.val()||{};
+    Object.entries(data).forEach(([id,msg]) => allMessages.push({id,...msg}));
+    allMessages.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
+    updateInboxBadge();
+    if(document.getElementById('inbox-modal').classList.contains('open')) renderInbox();
+  });
+}
+function updateInboxBadge() {
+  const unread = allMessages.filter(m=>!readIds.has(m.id)).length;
+  const badge = document.getElementById('inbox-badge');
+  if(badge){badge.textContent=unread;badge.style.display=unread>0?'flex':'none';}
+}
+window.openInbox = function() {
+  document.getElementById('inbox-modal').classList.add('open');
+  allMessages.forEach(m=>readIds.add(m.id));
+  localStorage.setItem('emmet_readIds',JSON.stringify([...readIds]));
+  setTimeout(updateInboxBadge,100);
+  renderInbox();
+};
+window.closeInbox = function() { document.getElementById('inbox-modal').classList.remove('open'); };
+function renderInbox() {
+  const list = document.getElementById('inbox-list');
+  if(!list)return;
+  if(allMessages.length===0){
+    list.innerHTML='<div class="inbox-empty"><div class="inbox-empty-icon">📭</div>No messages yet!<br><span style="font-size:0.78rem;color:var(--muted)">Mom or Dad will send you one soon 💜</span></div>';
+    return;
+  }
+  list.innerHTML = allMessages.map(m=>{
+    const time=m.timestamp?new Date(m.timestamp).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';
+    const isUnread=!readIds.has(m.id);
+    return `<div class="message-card ${isUnread?'unread':''}">
+      <div class="message-from">💌 From ${m.from||'Mom & Dad'}</div>
+      ${m.emoji?`<div class="message-emoji-big">${m.emoji}</div>`:''}
+      ${m.text?`<div class="message-text">${m.text}</div>`:''}
+      <div class="message-time">${time}</div>
+      <div class="reply-row">
+        <input class="reply-input" id="reply-${m.id}" placeholder="Reply to Mom & Dad..." maxlength="200">
+        <button class="reply-btn" onclick="sendReply('${m.id}')">Send</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+window.sendReply = async function(msgId) {
+  const input = document.getElementById(`reply-${msgId}`);
+  const text = input?.value?.trim();
+  if(!text) return;
+  await push(repliesRef, {
+    from: 'Emmet',
+    text,
+    replyTo: msgId,
+    timestamp: Date.now()
+  });
+  input.value='';
+  input.placeholder='Reply sent! ✅';
+  input.disabled=true;
+  showToast('Reply sent to Mom & Dad! 💌');
+};
+
+// ── GAMES ─────────────────────────────────────────────────────────────────────
+let currentGame=null,gameStreak=0;
+let usedGeo=[],usedTriv=[],usedSpell=[],currentMath=null,currentSpell=null;
+
+const spellingWords = [
+  {word:'NECESSARY',hint:'Something you need'},{word:'SEPARATE',hint:'To divide apart'},{word:'CONSCIENCE',hint:'Your inner moral voice'},{word:'EMBARRASS',hint:'To make someone feel awkward'},{word:'GUARANTEE',hint:'A promise it will happen'},{word:'LIEUTENANT',hint:'A military rank'},{word:'MISCELLANEOUS',hint:'A mixed variety of things'},{word:'OCCASIONALLY',hint:'Happening sometimes'},{word:'PERSISTENCE',hint:'Keeping going despite difficulty'},{word:'PRIVILEGE',hint:'A special right or advantage'},{word:'SUFFICIENT',hint:'Enough of something'},{word:'UNFORTUNATELY',hint:'Sadly, bad luck'},{word:'RHYTHM',hint:'A musical beat'},{word:'KNOWLEDGE',hint:'What you learn and know'},{word:'INTERRUPT',hint:'To break into a conversation'},{word:'BEGINNING',hint:'The start of something'},{word:'RECOMMEND',hint:'To suggest something'},{word:'TEMPERATURE',hint:'How hot or cold something is'},{word:'WEDNESDAY',hint:'Middle of the school week'},{word:'SIMULTANEOUS',hint:'Happening at the same time'},
+];
+const geoQs = [
+  {q:"Capital of Kazakhstan?",o:["Almaty","Astana","Shymkent","Aktobe"],a:1},
+  {q:"Smallest country in Asia?",o:["Singapore","Maldives","Bahrain","Brunei"],a:1},
+  {q:"Capital of Myanmar?",o:["Yangon","Mandalay","Naypyidaw","Bago"],a:2},
+  {q:"Which African country has the most pyramids?",o:["Egypt","Libya","Sudan","Ethiopia"],a:2},
+  {q:"Capital of Kyrgyzstan?",o:["Osh","Bishkek","Jalal-Abad","Karakol"],a:1},
+  {q:"Deepest lake in the world?",o:["Superior","Caspian","Baikal","Tanganyika"],a:2},
+  {q:"Capital of Papua New Guinea?",o:["Suva","Port Moresby","Honiara","Apia"],a:1},
+  {q:"Which country has the most time zones?",o:["Russia","USA","China","France"],a:3},
+  {q:"Capital of Mozambique?",o:["Beira","Nampula","Maputo","Tete"],a:2},
+  {q:"Highest waterfall in the world?",o:["Niagara","Victoria","Angel","Iguazu"],a:2},
+  {q:"Capital of Montenegro?",o:["Bar","Nikšić","Podgorica","Budva"],a:2},
+  {q:"Largest desert in the world?",o:["Sahara","Arabian","Gobi","Antarctic"],a:3},
+  {q:"Capital of Bhutan?",o:["Paro","Punakha","Thimphu","Wangdue"],a:2},
+  {q:"Which sea is the saltiest?",o:["Red Sea","Dead Sea","Caspian Sea","Mediterranean"],a:1},
+  {q:"Capital of Suriname?",o:["Georgetown","Cayenne","Paramaribo","Bridgetown"],a:2},
+  {q:"Most visited country in the world?",o:["USA","China","Spain","France"],a:3},
+  {q:"Capital of Eritrea?",o:["Massawa","Keren","Asmara","Mendefera"],a:2},
+  {q:"Largest island in the Mediterranean?",o:["Corsica","Sardinia","Cyprus","Sicily"],a:3},
+  {q:"Capital of Laos?",o:["Luang Prabang","Pakse","Vientiane","Savannakhet"],a:2},
+  {q:"Which country spans the most continents?",o:["Russia","France","USA","UK"],a:1},
+];
+const trivQs = [
+  {q:"Bones in adult human body?",o:["196","206","216","226"],a:1},
+  {q:"Gas plants absorb?",o:["Oxygen","Nitrogen","Carbon Dioxide","Hydrogen"],a:2},
+  {q:"Chemical symbol for gold?",o:["Go","Gd","Gl","Au"],a:3},
+  {q:"WW2 ended in?",o:["1943","1944","1945","1946"],a:2},
+  {q:"Hardest natural substance?",o:["Gold","Iron","Quartz","Diamond"],a:3},
+  {q:"Square root of 144?",o:["10","11","12","13"],a:2},
+  {q:"Hours in a week?",o:["148","158","168","178"],a:2},
+  {q:"Most common element in atmosphere?",o:["Oxygen","Nitrogen","Carbon","Argon"],a:1},
+  {q:"Planet with most moons?",o:["Jupiter","Saturn","Uranus","Neptune"],a:1},
+  {q:"Speed of light (approx km/s)?",o:["100,000","300,000","500,000","1,000,000"],a:1},
+  {q:"Which element has atomic number 1?",o:["Helium","Oxygen","Carbon","Hydrogen"],a:3},
+  {q:"Year the Berlin Wall fell?",o:["1987","1988","1989","1990"],a:2},
+  {q:"How many chromosomes in a human cell?",o:["23","36","46","48"],a:2},
+  {q:"Who wrote Romeo and Juliet?",o:["Dickens","Shakespeare","Hemingway","Chaucer"],a:1},
+  {q:"Nearest galaxy to Milky Way?",o:["Triangulum","Andromeda","Sombrero","Whirlpool"],a:1},
+  {q:"What is the powerhouse of the cell?",o:["Nucleus","Ribosome","Mitochondria","Golgi"],a:2},
+  {q:"Year of first moon landing?",o:["1965","1967","1969","1971"],a:2},
+  {q:"Largest organ in human body?",o:["Liver","Brain","Heart","Skin"],a:3},
+  {q:"In what year did WW1 begin?",o:["1912","1913","1914","1915"],a:2},
+  {q:"What is 17 × 13?",o:["191","211","221","231"],a:2},
+];
+function generateMath() {
+  const ops=['+','-','×','÷','²'], op=ops[Math.floor(Math.random()*ops.length)];
+  let a,b,answer,question;
+  switch(op){
+    case'+':a=Math.floor(Math.random()*200)+50;b=Math.floor(Math.random()*200)+50;answer=a+b;question=`${a} + ${b} = ?`;break;
+    case'-':a=Math.floor(Math.random()*200)+100;b=Math.floor(Math.random()*100)+10;answer=a-b;question=`${a} − ${b} = ?`;break;
+    case'×':a=Math.floor(Math.random()*15)+6;b=Math.floor(Math.random()*15)+6;answer=a*b;question=`${a} × ${b} = ?`;break;
+    case'÷':b=Math.floor(Math.random()*12)+3;answer=Math.floor(Math.random()*12)+3;a=b*answer;question=`${a} ÷ ${b} = ?`;break;
+    case'²':a=Math.floor(Math.random()*10)+4;answer=a*a;question=`${a}² = ?`;break;
+  }
+  return {question,answer};
+}
+function scrambleWord(w){const a=w.split('');for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}const r=a.join('');return r===w&&w.length>2?scrambleWord(w):r;}
+function pickRandom(arr,used){if(used.length>=arr.length)used.length=0;let idx;do{idx=Math.floor(Math.random()*arr.length);}while(used.includes(idx));used.push(idx);return arr[idx];}
+
+window.openGames=function(){document.getElementById('game-modal').classList.add('open');showGameSelector();};
+window.closeGames=function(){document.getElementById('game-modal').classList.remove('open');};
+
+function showGameSelector(){
+  document.getElementById('game-area').innerHTML=`<div class="game-title">🎮 Mini Games</div><div class="game-score-badge">🏆 Your Score: ${myGameScore} pts</div><div class="game-grid"><div class="game-pick" onclick="startGame('math')"><div class="game-pick-icon">🔢</div><div class="game-pick-name">Math</div><div class="game-pick-desc">+, −, ×, ÷</div></div><div class="game-pick" onclick="startGame('spelling')"><div class="game-pick-icon">🔤</div><div class="game-pick-name">Spelling</div><div class="game-pick-desc">Unscramble words</div></div><div class="game-pick" onclick="startGame('geo')"><div class="game-pick-icon">🌍</div><div class="game-pick-name">Geography</div><div class="game-pick-desc">Capitals & countries</div></div><div class="game-pick" onclick="startGame('trivia')"><div class="game-pick-icon">🧠</div><div class="game-pick-name">Trivia</div><div class="game-pick-desc">Science & history</div></div></div>`;
+}
+window.startGame=function(type){currentGame=type;gameStreak=0;nextQuestion();};
+window.nextQuestion=function(){
+  const area=document.getElementById('game-area');
+  if(currentGame==='math'){
+    currentMath=generateMath();
+    area.innerHTML=`<div class="game-title">🔢 Math</div><div class="game-score-badge">🏆 ${myGameScore} · 🔥 ${gameStreak}</div><div class="game-question">${currentMath.question}</div><div class="game-input-row"><input class="game-input" id="gi" type="number" placeholder="?" onkeydown="if(event.key==='Enter')checkMath()"><button class="game-submit" onclick="checkMath()">Go!</button></div><div class="game-feedback" id="gf"></div><button class="game-next-btn" id="gn" onclick="nextQuestion()">Next ➜</button><button class="game-back-btn" onclick="showGameSelector()">← Games</button>`;
+    setTimeout(()=>document.getElementById('gi')?.focus(),100);
+  }else if(currentGame==='spelling'){
+    currentSpell=pickRandom(spellingWords,usedSpell);
+    const sc=scrambleWord(currentSpell.word);
+    area.innerHTML=`<div class="game-title">🔤 Spelling</div><div class="game-score-badge">🏆 ${myGameScore} · 🔥 ${gameStreak}</div><div class="spell-hint">Hint: ${currentSpell.hint}</div><div class="spell-word-display">${sc}</div><div class="game-input-row"><input class="game-input" id="gi" type="text" placeholder="Unscramble!" style="text-transform:uppercase;font-size:1rem" onkeydown="if(event.key==='Enter')checkSpelling()"><button class="game-submit" onclick="checkSpelling()">Go!</button></div><div class="game-feedback" id="gf"></div><button class="game-next-btn" id="gn" onclick="nextQuestion()">Next ➜</button><button class="game-back-btn" onclick="showGameSelector()">← Games</button>`;
+    setTimeout(()=>document.getElementById('gi')?.focus(),100);
+  }else{
+    const pool=currentGame==='geo'?geoQs:trivQs,used=currentGame==='geo'?usedGeo:usedTriv;
+    const q=pickRandom(pool,used);
+    const icon=currentGame==='geo'?'🌍':'🧠',label=currentGame==='geo'?'Geography':'Trivia';
+    area.innerHTML=`<div class="game-title">${icon} ${label}</div><div class="game-score-badge">🏆 ${myGameScore} · 🔥 ${gameStreak}</div><div class="game-question">${q.q}</div><div class="game-options">${q.o.map((opt,i)=>`<button class="game-option" id="opt-${i}" onclick="checkMC(${i},${q.a},'${q.o[q.a].replace(/'/g,"\\'")}')">${opt}</button>`).join('')}</div><div class="game-feedback" id="gf"></div><button class="game-next-btn" id="gn" onclick="nextQuestion()">Next ➜</button><button class="game-back-btn" onclick="showGameSelector()">← Games</button>`;
+  }
+};
+
+function addPts(pts){
+  myGameScore+=pts;
+  saveScore();
+  updateScoreboard();
+}
+
+window.checkMath=function(){
+  const input=document.getElementById('gi'),val=parseInt(input.value),fb=document.getElementById('gf'),gn=document.getElementById('gn');
+  if(isNaN(val))return;input.disabled=true;document.querySelector('.game-submit').disabled=true;
+  if(val===currentMath.answer){gameStreak++;const pts=10+(gameStreak>1?gameStreak*2:0);addPts(pts);fb.className='game-feedback correct';fb.textContent=gameStreak>1?`🔥 ${gameStreak} streak! +${pts} pts!`:`✅ Correct! +${pts} pts!`;showToast(`+${pts} pts! 🔢`);}
+  else{gameStreak=0;fb.className='game-feedback wrong';fb.textContent=`❌ Answer was ${currentMath.answer}`;}
+  gn.classList.add('show');
+};
+window.checkSpelling=function(){
+  const input=document.getElementById('gi'),val=input.value.trim().toUpperCase(),fb=document.getElementById('gf'),gn=document.getElementById('gn');
+  if(!val)return;input.disabled=true;document.querySelector('.game-submit').disabled=true;
+  if(val===currentSpell.word){gameStreak++;const pts=15+(gameStreak>1?gameStreak*3:0);addPts(pts);fb.className='game-feedback correct';fb.textContent=gameStreak>1?`🔥 ${gameStreak} streak! +${pts} pts!`:`✅ Correct! +${pts} pts!`;showToast(`+${pts} pts! 🔤`);}
+  else{gameStreak=0;fb.className='game-feedback wrong';fb.textContent=`❌ It was: ${currentSpell.word}`;}
+  gn.classList.add('show');
+};
+window.checkMC=function(chosen,correct,correctText){
+  const fb=document.getElementById('gf'),gn=document.getElementById('gn');
+  document.querySelectorAll('.game-option').forEach((btn,i)=>{btn.disabled=true;if(i===correct)btn.classList.add('correct');else if(i===chosen)btn.classList.add('wrong');});
+  if(chosen===correct){gameStreak++;const pts=10+(gameStreak>1?gameStreak*2:0);addPts(pts);fb.className='game-feedback correct';fb.textContent=gameStreak>1?`🔥 ${gameStreak} streak! +${pts} pts!`:`✅ Correct! +${pts} pts!`;showToast(`+${pts} pts! 🧠`);}
+  else{gameStreak=0;fb.className='game-feedback wrong';fb.textContent=`❌ Answer: ${correctText}`;}
+  gn.classList.add('show');
+};
+
+// ── BONUS GAME (Snake) ────────────────────────────────────────────────────────
+let bonusInterval=null, bonusScore=0;
+window.openBonusGame=function(){
+  document.getElementById('game-modal').classList.remove('open');
+  document.getElementById('bonus-modal').classList.add('open');
+  startSnake();
+};
+window.closeBonusGame=function(){
+  document.getElementById('bonus-modal').classList.remove('open');
+  if(bonusInterval)clearInterval(bonusInterval);
+};
+function startSnake(){
+  const canvas=document.getElementById('bonus-canvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height,SZ=20;
+  let snake=[{x:10,y:10}],dir={x:1,y:0},food={x:5,y:5},score=0,alive=true;
+  bonusScore=0;
+  function placeFood(){food={x:Math.floor(Math.random()*(W/SZ)),y:Math.floor(Math.random()*(H/SZ))};}
+  function draw(){
+    ctx.fillStyle='#0F172A';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#22C55E';
+    snake.forEach(s=>ctx.fillRect(s.x*SZ+1,s.y*SZ+1,SZ-2,SZ-2));
+    ctx.fillStyle='#FFD93D';ctx.beginPath();ctx.arc(food.x*SZ+SZ/2,food.y*SZ+SZ/2,SZ/2-2,0,Math.PI*2);ctx.fill();
+    if(!alive){ctx.fillStyle='rgba(0,0,0,0.7)';ctx.fillRect(0,0,W,H);ctx.fillStyle='white';ctx.font='bold 28px Fredoka One,cursive';ctx.textAlign='center';ctx.fillText('Game Over!',W/2,H/2-20);ctx.font='20px Fredoka One,cursive';ctx.fillText(`Score: ${score}`,W/2,H/2+15);ctx.fillText('Tap to restart',W/2,H/2+45);}
+  }
+  function update(){
+    if(!alive)return;
+    const head={x:snake[0].x+dir.x,y:snake[0].y+dir.y};
+    if(head.x<0||head.x>=W/SZ||head.y<0||head.y>=H/SZ||snake.some(s=>s.x===head.x&&s.y===head.y)){alive=false;draw();return;}
+    snake.unshift(head);
+    if(head.x===food.x&&head.y===food.y){score++;bonusScore=score;document.getElementById('bonus-score').textContent=`Score: ${score}`;placeFood();}else{snake.pop();}
+    draw();
+  }
+  if(bonusInterval)clearInterval(bonusInterval);
+  bonusInterval=setInterval(update,120);
+  // Touch swipe controls
+  let tx=0,ty=0;
+  canvas.ontouchstart=e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;};
+  canvas.ontouchend=e=>{
+    const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;
+    if(!alive){alive=true;snake=[{x:10,y:10}];dir={x:1,y:0};score=0;placeFood();return;}
+    if(Math.abs(dx)>Math.abs(dy)){if(dx>0&&dir.x!==- 1)dir={x:1,y:0};else if(dx<0&&dir.x!==1)dir={x:-1,y:0};}
+    else{if(dy>0&&dir.y!==-1)dir={x:0,y:1};else if(dy<0&&dir.y!==1)dir={x:0,y:-1};}
+  };
+  canvas.onclick=()=>{if(!alive){alive=true;snake=[{x:10,y:10}];dir={x:1,y:0};score=0;placeFood();}};
+  draw();
+}
+
+
+// ── PHOTOS ────────────────────────────────────────────────────────────────────
+const photosRef = ref(db, `photos/emmet/${todayKey}`);
+
+window.triggerPhoto = function(choreId) {
+  document.getElementById('photo-input-' + choreId).click();
+};
+
+window.handlePhoto = async function(choreId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  // Compress to ~100KB using canvas
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = e => {
+    img.onload = async () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 600;
+      let w = img.width, h = img.height;
+      if (w > h && w > MAX) { h = h*MAX/w; w = MAX; }
+      else if (h > MAX) { w = w*MAX/h; h = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+      // Save to Firebase
+      await set(ref(db, `photos/emmet/${todayKey}/${choreId}`), {
+        img: dataUrl,
+        ts: Date.now(),
+        chore: choreId
+      });
+      showToast('📸 Photo saved!');
+      // Update button to show thumbnail
+      const btn = document.getElementById('photo-btn-' + choreId);
+      if (btn) { btn.className = 'photo-btn has-photo'; btn.textContent = '📸✓'; }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+
+// ── BONUS CHALLENGE ───────────────────────────────────────────────────────────
+const CHALLENGE_IDEAS_SAM = [
+  'Say hello to someone you\'ve never talked to',
+  'Smile at 3 strangers today',
+  'Take a completely different route home',
+  'Try a food you\'ve never eaten before',
+  'Do something creative for 20 minutes (draw, write, build)',
+  'Say "I don\'t know — let me find out" instead of guessing',
+  'Ask an adult one serious question about their life',
+  'Write down 3 things you\'re actually proud of',
+  'Do something kind for someone without telling anyone',
+  'Learn one new fact about something that confuses you',
+  'Start a conversation about something that actually interests you',
+  'Make a mistake on purpose — then laugh it off',
+  'Put your phone away for 2 full hours',
+  'Introduce yourself to someone new',
+  'Do the thing you\'ve been putting off all week',
+  'Sit with a feeling instead of distracting yourself',
+  'Tell someone something you genuinely appreciate about them',
+  'Try something physical you\'ve never done before',
+];
+
+const CHALLENGE_IDEAS_EMMET = [
+  'Start a real conversation with someone outside your friend group',
+  'Do something you\'re bad at — on purpose, in front of people',
+  'Take the harder path today instead of the easier one',
+  'Ask for feedback on something you made or did',
+  'Write down your biggest fear and one small step toward facing it',
+  'Say yes to something you normally say no to',
+  'Make a decision without asking anyone else\'s opinion first',
+  'Go somewhere alone you\'d normally only go with friends',
+  'Try something that risks looking dumb or failing publicly',
+  'Give a genuine compliment to someone you don\'t know well',
+  'Set a 5-minute timer and brainstorm a business idea',
+  'Have a hard conversation you\'ve been avoiding',
+  'Learn something new in 30 minutes and teach it to someone',
+  'Do 10 minutes of meditation or stillness — no phone',
+  'Write a letter to your future self about today',
+  'Do something uncomfortable before 9 AM',
+  'Challenge one assumption you\'ve held about yourself',
+  'Take a social risk — ask someone something real',
+];
+
+let bonusDone = false;
+let bonusPhotoTaken = false;
+let selectedChallenge = '';
+
+const CHALLENGES = CHALLENGE_IDEAS_EMMET;
+
+function getBonusChallengeForToday() {
+  const seed = parseInt(todayKey.replace(/-/g,''));
+  return CHALLENGES[seed % CHALLENGES.length];
+}
+
+function renderBonusSection() {
+  const el = document.getElementById('bonus-challenge-section');
+  if (!el) return;
+
+  if (dayState._bonus_done) {
+    el.innerHTML = `<div class="bonus-done-strip">🔥 Bonus Challenge Complete! +25 XP · You pushed yourself today!</div>`;
+    return;
+  }
+
+  const todayChallenge = getBonusChallengeForToday();
+  const pickerOptions = CHALLENGES.map((c,i) =>
+    `<option value="${c}" ${c===todayChallenge?'selected':''}>${c}</option>`
+  ).join('');
+
+  el.innerHTML = `
+    <div class="bonus-header">
+      <span style="font-size:1.5rem">🔥</span>
+      <span class="bonus-title">Do Something Uncomfortable</span>
+      <span class="bonus-xp">+25 XP</span>
+    </div>
+    <div class="bonus-badge">Optional · Highly Suggested</div>
+    <div class="bonus-desc" style="margin-top:8px">Growth happens outside your comfort zone. Pick a challenge, do it, snap a photo as proof.</div>
+    <select class="challenge-picker" id="challenge-picker" onchange="selectedChallenge=this.value">
+      ${pickerOptions}
+    </select>
+    <div class="bonus-photo-row">
+      <button class="bonus-photo-btn" id="bonus-photo-btn" onclick="triggerBonusPhoto()">
+        📸 Take Proof Photo
+      </button>
+      <img id="bonus-photo-preview" class="bonus-photo-preview" src="" alt="proof">
+      <span id="bonus-photo-status" style="font-size:0.75rem;color:var(--muted);flex:1"></span>
+    </div>
+    <input type="file" accept="image/*" capture="environment" id="bonus-photo-input" style="display:none" onchange="handleBonusPhoto(this)">
+    <button class="bonus-complete-btn" id="bonus-complete-btn" onclick="completeBonusChallenge()" disabled>
+      ✅ Mark Challenge Complete
+    </button>
+  `;
+  selectedChallenge = todayChallenge;
+}
+
+window.triggerBonusPhoto = function() {
+  document.getElementById('bonus-photo-input').click();
+};
+
+window.handleBonusPhoto = async function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = e => {
+    img.onload = async () => {
+      const canvas = document.createElement('canvas');
+      const MAX = 600;
+      let w = img.width, h = img.height;
+      if (w > h && w > MAX) { h = h*MAX/w; w = MAX; }
+      else if (h > MAX) { w = w*MAX/h; h = MAX; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+      // Save photo
+      const WHOKEY = 'emmet';
+      await set(ref(db, `photos/${WHOKEY}/${todayKey}/bonus_challenge`), {
+        img: dataUrl, ts: Date.now(), chore: 'bonus_challenge'
+      });
+      // Update UI
+      const preview = document.getElementById('bonus-photo-preview');
+      if (preview) { preview.src = dataUrl; preview.style.display = 'block'; }
+      const btn = document.getElementById('bonus-photo-btn');
+      if (btn) { btn.className = 'bonus-photo-btn taken'; btn.textContent = '📸 Photo Taken ✓'; }
+      const status = document.getElementById('bonus-photo-status');
+      if (status) status.textContent = 'Photo saved!';
+      bonusPhotoTaken = true;
+      document.getElementById('bonus-complete-btn').disabled = false;
+      showToast('📸 Challenge photo saved!');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.completeBonusChallenge = async function() {
+  if (!bonusPhotoTaken) { showToast('Take a photo first!', true); return; }
+  const picker = document.getElementById('challenge-picker');
+  const challenge = picker ? picker.value : selectedChallenge;
+  dayState._bonus_done = true;
+  dayState._bonus_challenge = challenge;
+  await set(dayRef, dayState);
+  myGameScore += 25;
+  await saveScore();
+  updateScoreboard();
+  showToast('🔥 Bonus challenge complete! +25 XP!');
+  renderBonusSection();
+};
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+window.showToast=function(msg,isError=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=isError?'#EF4444':'var(--green)';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+};
+
+// ── FIREBASE LISTENERS ────────────────────────────────────────────────────────
+function setupListeners(){
+  // Load immediately — don't wait for Firebase
+  render();
+  document.getElementById('loading-screen').classList.add('hidden');
+  document.getElementById('sync-label').textContent='Connecting...';
+
+  // Firebase connects in background
+  onValue(dayRef,snap=>{
+    dayState=snap.val()||{};
+    render();
+    document.getElementById('sync-dot').classList.add('live');
+    document.getElementById('sync-label').textContent='Live sync on';
+    setupInboxListener();
+  });
+  onValue(earningsRef,snap=>{earnings=snap.val()||{totalDays:0,totalAmount:0};const chores=getChores();updateUI(chores);});
+  onValue(myScoreRef,snap=>{myGameScore=snap.val()||0;updateScoreboard();});
+  onValue(rivalScoreRef,snap=>{rivalGameScore=snap.val()||0;updateScoreboard();});
+}
+
+// ── DAILY RESET ───────────────────────────────────────────────────────────────
+function scheduleMidnightReset(){
+  const now=new Date();
+  const midnight=new Date();midnight.setHours(24,0,0,0);
+  const ms=midnight-now;
+  setTimeout(()=>{location.reload();},ms);
+}
+
+// ── PWA ───────────────────────────────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(reg=>{
+    reg.addEventListener('updatefound',()=>{
+      const worker=reg.installing;
+      worker.addEventListener('statechange',()=>{
+        if(worker.state==='installed'&&navigator.serviceWorker.controller){
+          document.getElementById('update-banner').classList.add('show');
+        }
+      });
+    });
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function init(){
+  const q=quotes[dayOfWeek%quotes.length];
+  document.getElementById('date-pill').textContent=`${DAYS[dayOfWeek]}, ${MONTHS[today.getMonth()]} ${dateNum}`;
+  document.getElementById('daily-quote').textContent=`"${q.text}"`;
+  document.getElementById('daily-prompt').textContent=`💭 ${q.prompt}`;
+  const nights={2:{e:'🍿',t:'Movie Night + Dessert!',s:'Finish chores first!'},4:{e:'🍿',t:'Movie Night + Dessert!',s:'Finish chores first!'},1:{e:'🎸',t:'Chill Night',s:'No devices after 8 PM'},3:{e:'🎸',t:'Chill Night',s:'No devices after 8 PM'},5:{e:'🌅',t:'Friday! Weekend incoming',s:'Laundry this weekend!'}};
+  const n=nights[dayOfWeek]||{e:'☀️',t:'Weekend Day',s:"Don't forget laundry!"};
+  document.getElementById('tonight-emoji').textContent=n.e;
+  document.getElementById('tonight-text').textContent=n.t;
+  document.getElementById('tonight-sub').textContent=n.s;
+  scheduleMidnightReset();
+  setupListeners();
+  setTimeout(() => loadPenaltyChores('emmet').catch(e => console.warn('Penalty:', e)), 2500);
+}
+init();
+</script>
+</body>
+</html>
