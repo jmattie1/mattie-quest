@@ -442,6 +442,7 @@ function getChores() {
     c.push({id:'laundry_fold',section:'Weekend',emoji:'🧺',name:'Fold Laundry',detail:'Fold everything neatly',xp:10});
     c.push({id:'laundry_put',section:'Weekend',emoji:'🗄️',name:'Put Laundry Away',detail:'Back in drawers and closet',xp:10});
   }
+  if (dayOfWeek === 0) c.push({id:'hamster',section:'Weekend',emoji:'🐹',name:'Clean Hamster Cage',detail:'Fresh bedding, wipe down cage, refill food and water',xp:15});
   c.push({id:'goal',section:'My Goal',emoji:'🎯',name:"Sam's Personal Goal",detail:'Your own goal – tap to check off!',xp:15,isGoal:true});
   return c;
 }
@@ -458,6 +459,7 @@ function getChoresForDay(who, wd, dn, even, weekend, mon, tue, wed, thu) {
   if (mon || wed) c.push({id:'jujitsu'});
   c.push({id:'shower'});c.push({id:'pill'});
   if (weekend) { c.push({id:'laundry_wash'});c.push({id:'laundry_fold'});c.push({id:'laundry_put'}); }
+  if (wd === 0) c.push({id:'hamster'});
   return c;
 }
 
