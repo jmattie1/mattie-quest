@@ -519,9 +519,9 @@ async function loadPenaltyChores(who) {
   const pool = seed % 2 === 0 ? PENALTY_POOL_EXERCISE : PENALTY_POOL_HOUSEHOLD;
   const idx = Math.floor(seededRandom(seed) * pool.length);
   const pick = pool[idx];
-  const missedNames = missed.map(m => m.name || 'a chore').join(', ');
+  const missedCount = missed.length;
   penalties.push({...pick, section:'⚠️ Penalty Chores', isPenalty:true,
-    detail: pick.detail + ` (you missed: ${missedNames} yesterday)`
+    detail: pick.detail + ` (make-up: you missed ${missedCount} chore${missedCount !== 1 ? 's' : ''} yesterday)`
   });
   penaltyChores = penalties;
   render();
@@ -682,6 +682,26 @@ window.spinBreakfast = function(event) {
 let currentGame=null,gameStreak=0;
 let usedGeo=[],usedTriv=[],usedSpell=[],currentMath=null,currentSpell=null;
 
+// Reset game question pools daily
+(function resetGameDaily() {
+  const gameDate = localStorage.getItem('gameDate');
+  if (gameDate !== todayKey) {
+    localStorage.setItem('gameDate', todayKey);
+    localStorage.removeItem('usedGeo');
+    localStorage.removeItem('usedTriv');
+    localStorage.removeItem('usedSpell');
+  }
+  usedGeo = JSON.parse(localStorage.getItem('usedGeo') || '[]');
+  usedTriv = JSON.parse(localStorage.getItem('usedTriv') || '[]');
+  usedSpell = JSON.parse(localStorage.getItem('usedSpell') || '[]');
+})();
+
+function saveUsed() {
+  localStorage.setItem('usedGeo', JSON.stringify(usedGeo));
+  localStorage.setItem('usedTriv', JSON.stringify(usedTriv));
+  localStorage.setItem('usedSpell', JSON.stringify(usedSpell));
+}
+
 const spellingWords = [
   {word:'BECAUSE',hint:'For the reason that'},{word:'FRIEND',hint:'Someone you like spending time with'},{word:'PEOPLE',hint:'Human beings'},{word:'SHOULD',hint:'Used to give advice'},{word:'THROUGH',hint:'Moving from one end to the other'},{word:'BELIEVE',hint:'To think something is true'},{word:'ENOUGH',hint:'As much as needed'},{word:'USUALLY',hint:'Most of the time'},{word:'SPECIAL',hint:'Better or different from normal'},{word:'IMPORTANT',hint:'Of great value or significance'},{word:'TOGETHER',hint:'With each other'},{word:'DIFFERENT',hint:'Not the same'},{word:'BEAUTIFUL',hint:'Pleasing to look at'},{word:'PROBLEM',hint:'A difficult situation'},{word:'PRACTICE',hint:'Do repeatedly to get better'},{word:'SURPRISE',hint:'Something unexpected'},{word:'TROUBLE',hint:'Difficulty or problems'},{word:'FINALLY',hint:'At last, after a long time'},{word:'REMEMBER',hint:'To bring back to mind'},{word:'BROTHER',hint:'A male sibling'},{word:'CALENDAR',hint:'A chart of months and days'},{word:'DIAMOND',hint:'A precious gem'},{word:'EXERCISE',hint:'Physical activity'},{word:'FAVORITE',hint:'The one you like most'},{word:'GENERAL',hint:'Relating to all, not specific'},{word:'HOLIDAY',hint:'A day of celebration'},{word:'IMAGINE',hint:'To picture in your mind'},{word:'JOURNEY',hint:'A long trip'},{word:'KITCHEN',hint:'Room where you cook'},{word:'LANGUAGE',hint:'System of communication'},{word:'MILLION',hint:'A thousand thousands'},{word:'NATURAL',hint:'Existing in nature'},{word:'OCTOBER',hint:'Tenth month of the year'},{word:'PERHAPS',hint:'Maybe, possibly'},{word:'QUICKLY',hint:'At a fast pace'},{word:'RECEIVE',hint:'To get something given'},{word:'SCIENCE',hint:'Study of the natural world'},{word:'THOUGHT',hint:'An idea in your mind'},{word:'USUALLY',hint:'Most of the time'},{word:'VILLAGE',hint:'A small community'},{word:'WEATHER',hint:'Atmospheric conditions'},{word:'YOUNGER',hint:'Less old'},{word:'BETWEEN',hint:'In the middle of two things'},{word:'CERTAIN',hint:'Definitely true'},{word:'DECIDED',hint:'Made up your mind'},{word:'EXAMPLE',hint:'A sample showing something'},{word:'FORWARD',hint:'Toward the front'},{word:'GRAMMAR',hint:'Rules of language'},{word:'ALREADY',hint:'Before this time'},{word:'ANOTHER',hint:'One more of the same'},{word:'CENTURY',hint:'100 years'}
 ];
@@ -787,12 +807,12 @@ window.nextQuestion=function(){
     area.innerHTML=`<div class="game-title">🔢 Math</div><div class="game-score-badge">🏆 ${myGameScore} · 🔥 ${gameStreak}</div><div class="game-question">${currentMath.question}</div><div class="game-input-row"><input class="game-input" id="gi" type="number" placeholder="?" onkeydown="if(event.key==='Enter')checkMath()"><button class="game-submit" onclick="checkMath()">Go!</button></div><div class="game-feedback" id="gf"></div><button class="game-next-btn" id="gn" onclick="nextQuestion()">Next ➜</button><button class="game-back-btn" onclick="showGameSelector()">← Games</button>`;
     setTimeout(()=>document.getElementById('gi')?.focus(),100);
   }else if(currentGame==='spelling'){
-    currentSpell=pickRandom(spellingWords,usedSpell);
+    currentSpell=pickRandom(spellingWords,usedSpell);saveUsed();
     const sc=scrambleWord(currentSpell.word);
     area.innerHTML=`<div class="game-title">🔤 Spelling</div><div class="game-score-badge">🏆 ${myGameScore} · 🔥 ${gameStreak}</div><div class="spell-hint">Hint: ${currentSpell.hint}</div><div class="spell-word-display">${sc}</div><div class="game-input-row"><input class="game-input" id="gi" type="text" placeholder="Unscramble!" style="text-transform:uppercase;font-size:1rem" onkeydown="if(event.key==='Enter')checkSpelling()"><button class="game-submit" onclick="checkSpelling()">Go!</button></div><div class="game-feedback" id="gf"></div><button class="game-next-btn" id="gn" onclick="nextQuestion()">Next ➜</button><button class="game-back-btn" onclick="showGameSelector()">← Games</button>`;
     setTimeout(()=>document.getElementById('gi')?.focus(),100);
   }else{
-    const pool=currentGame==='geo'?geoQs:trivQs,used=currentGame==='geo'?usedGeo:usedTriv;
+    const pool=currentGame==='geo'?geoQs:trivQs,used=currentGame==='geo'?usedGeo:usedTriv;saveUsed();
     const q=pickRandom(pool,used);
     const icon=currentGame==='geo'?'🌍':'🧠',label=currentGame==='geo'?'Geography':'Trivia';
     area.innerHTML=`<div class="game-title">${icon} ${label}</div><div class="game-score-badge">🏆 ${myGameScore} · 🔥 ${gameStreak}</div><div class="game-question">${q.q}</div><div class="game-options">${q.o.map((opt,i)=>`<button class="game-option" id="opt-${i}" onclick="checkMC(${i},${q.a},'${q.o[q.a].replace(/'/g,"\\'")}')">${opt}</button>`).join('')}</div><div class="game-feedback" id="gf"></div><button class="game-next-btn" id="gn" onclick="nextQuestion()">Next ➜</button><button class="game-back-btn" onclick="showGameSelector()">← Games</button>`;
@@ -800,7 +820,7 @@ window.nextQuestion=function(){
 };
 
 function addPts(pts){
-  myGameScore+=pts;
+  myGameScore+=pts*100;
   saveScore();
   updateScoreboard();
 }
@@ -1057,10 +1077,10 @@ window.completeBonusChallenge = async function() {
   dayState._bonus_done = true;
   dayState._bonus_challenge = challenge;
   await set(dayRef, dayState);
-  myGameScore += 25;
+  myGameScore += 1000;
   await saveScore();
   updateScoreboard();
-  showToast('🔥 Bonus challenge complete! +25 XP!');
+  showToast('🔥 Bonus challenge complete! +1000 pts!');
   renderBonusSection();
 };
 
