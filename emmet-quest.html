@@ -522,9 +522,9 @@ async function loadPenaltyChores(who) {
   const pool = seed % 2 === 0 ? PENALTY_POOL_EXERCISE : PENALTY_POOL_HOUSEHOLD;
   const idx = Math.floor(seededRandom(seed) * pool.length);
   const pick = pool[idx];
-  const missedNames = missed.map(m => m.name || 'a chore').join(', ');
+  const missedCount = missed.length;
   penalties.push({...pick, section:'⚠️ Penalty Chores', isPenalty:true,
-    detail: pick.detail + ` (you missed: ${missedNames} yesterday)`
+    detail: pick.detail + ` (make-up: you missed ${missedCount} chore${missedCount !== 1 ? 's' : ''} yesterday)`
   });
   penaltyChores = penalties;
   render();
@@ -685,6 +685,26 @@ window.spinBreakfast = function(event) {
 let currentGame=null,gameStreak=0;
 let usedGeo=[],usedTriv=[],usedSpell=[],currentMath=null,currentSpell=null;
 
+// Reset game question pools daily
+(function resetGameDaily() {
+  const gameDate = localStorage.getItem('gameDate');
+  if (gameDate !== todayKey) {
+    localStorage.setItem('gameDate', todayKey);
+    localStorage.removeItem('usedGeo');
+    localStorage.removeItem('usedTriv');
+    localStorage.removeItem('usedSpell');
+  }
+  usedGeo = JSON.parse(localStorage.getItem('usedGeo') || '[]');
+  usedTriv = JSON.parse(localStorage.getItem('usedTriv') || '[]');
+  usedSpell = JSON.parse(localStorage.getItem('usedSpell') || '[]');
+})();
+
+function saveUsed() {
+  localStorage.setItem('usedGeo', JSON.stringify(usedGeo));
+  localStorage.setItem('usedTriv', JSON.stringify(usedTriv));
+  localStorage.setItem('usedSpell', JSON.stringify(usedSpell));
+}
+
 const spellingWords = [
   {word:'NECESSARY',hint:'Something you need'},{word:'SEPARATE',hint:'To divide apart'},{word:'CONSCIENCE',hint:'Your inner moral voice'},{word:'EMBARRASS',hint:'To make someone feel awkward'},{word:'GUARANTEE',hint:'A promise it will happen'},{word:'LIEUTENANT',hint:'A military rank'},{word:'MISCELLANEOUS',hint:'A mixed variety of things'},{word:'OCCASIONALLY',hint:'Happening sometimes'},{word:'PERSISTENCE',hint:'Keeping going despite difficulty'},{word:'PRIVILEGE',hint:'A special right or advantage'},{word:'SUFFICIENT',hint:'Enough of something'},{word:'UNFORTUNATELY',hint:'Sadly, bad luck'},{word:'RHYTHM',hint:'A musical beat'},{word:'KNOWLEDGE',hint:'What you learn and know'},{word:'INTERRUPT',hint:'To break into a conversation'},{word:'BEGINNING',hint:'The start of something'},{word:'RECOMMEND',hint:'To suggest something'},{word:'TEMPERATURE',hint:'How hot or cold something is'},{word:'WEDNESDAY',hint:'Middle of the school week'},{word:'SIMULTANEOUS',hint:'Happening at the same time'},{word:'ACKNOWLEDGE',hint:'To recognize or admit'},{word:'BUREAUCRACY',hint:'Complex official rules and procedures'},{word:'CONSCIENTIOUS',hint:'Very careful and thorough'},{word:'CATASTROPHE',hint:'A sudden disaster'},{word:'DETERIORATE',hint:'To get worse over time'},{word:'EXAGGERATE',hint:'To overstate something'},{word:'FLUORESCENT',hint:'Bright glowing light type'},{word:'HIERARCHICAL',hint:'Arranged by rank or order'},{word:'INDEPENDENT',hint:'Not relying on others'},{word:'IRRELEVANT',hint:'Not connected to the matter'},{word:'LEGISLATURE',hint:'A law-making body'},{word:'MISCHIEVOUS',hint:'Playfully causing trouble'},{word:'NEGOTIATION',hint:'Discussion to reach an agreement'},{word:'OMNISCIENT',hint:'Knowing everything'},{word:'PARLIAMENTARY',hint:'Relating to a government body'},{word:'QUESTIONNAIRE',hint:'A list of questions to answer'},{word:'RENAISSANCE',hint:'A rebirth or cultural revival'},{word:'SURVEILLANCE',hint:'Close observation or monitoring'},{word:'UBIQUITOUS',hint:'Found everywhere'},{word:'VULNERABILITY',hint:'Being open to harm'},{word:'ACQUAINTANCE',hint:'Someone you know but not closely'},{word:'BELLIGERENT',hint:'Hostile and aggressive'},{word:'CAMOUFLAGE',hint:'Disguise to blend in'},{word:'DILAPIDATED',hint:'In a state of disrepair'},{word:'EQUILIBRIUM',hint:'A state of balance'},{word:'FACETIOUS',hint:'Treating something serious as funny'},{word:'GREGARIOUS',hint:'Fond of company, sociable'},{word:'HYPOCRITICAL',hint:'Claiming beliefs you dont follow'},{word:'IDIOSYNCRATIC',hint:'Peculiar to an individual'},{word:'JUXTAPOSITION',hint:'Placing two things side by side'}
 ];
@@ -791,12 +811,12 @@ window.nextQuestion=function(){
     area.innerHTML=`<div class="game-title">🔢 Math</div><div class="game-score-badge">🏆 ${myGameScore} · 🔥 ${gameStreak}</div><div class="game-question">${currentMath.question}</div><div class="game-input-row"><input class="game-input" id="gi" type="number" placeholder="?" onkeydown="if(event.key==='Enter')checkMath()"><button class="game-submit" onclick="checkMath()">Go!</button></div><div class="game-feedback" id="gf"></div><button class="game-next-btn" id="gn" onclick="nextQuestion()">Next ➜</button><button class="game-back-btn" onclick="showGameSelector()">← Games</button>`;
     setTimeout(()=>document.getElementById('gi')?.focus(),100);
   }else if(currentGame==='spelling'){
-    currentSpell=pickRandom(spellingWords,usedSpell);
+    currentSpell=pickRandom(spellingWords,usedSpell);saveUsed();
     const sc=scrambleWord(currentSpell.word);
     area.innerHTML=`<div class="game-title">🔤 Spelling</div><div class="game-score-badge">🏆 ${myGameScore} · 🔥 ${gameStreak}</div><div class="spell-hint">Hint: ${currentSpell.hint}</div><div class="spell-word-display">${sc}</div><div class="game-input-row"><input class="game-input" id="gi" type="text" placeholder="Unscramble!" style="text-transform:uppercase;font-size:1rem" onkeydown="if(event.key==='Enter')checkSpelling()"><button class="game-submit" onclick="checkSpelling()">Go!</button></div><div class="game-feedback" id="gf"></div><button class="game-next-btn" id="gn" onclick="nextQuestion()">Next ➜</button><button class="game-back-btn" onclick="showGameSelector()">← Games</button>`;
     setTimeout(()=>document.getElementById('gi')?.focus(),100);
   }else{
-    const pool=currentGame==='geo'?geoQs:trivQs,used=currentGame==='geo'?usedGeo:usedTriv;
+    const pool=currentGame==='geo'?geoQs:trivQs,used=currentGame==='geo'?usedGeo:usedTriv;saveUsed();
     const q=pickRandom(pool,used);
     const icon=currentGame==='geo'?'🌍':'🧠',label=currentGame==='geo'?'Geography':'Trivia';
     area.innerHTML=`<div class="game-title">${icon} ${label}</div><div class="game-score-badge">🏆 ${myGameScore} · 🔥 ${gameStreak}</div><div class="game-question">${q.q}</div><div class="game-options">${q.o.map((opt,i)=>`<button class="game-option" id="opt-${i}" onclick="checkMC(${i},${q.a},'${q.o[q.a].replace(/'/g,"\\'")}')">${opt}</button>`).join('')}</div><div class="game-feedback" id="gf"></div><button class="game-next-btn" id="gn" onclick="nextQuestion()">Next ➜</button><button class="game-back-btn" onclick="showGameSelector()">← Games</button>`;
