@@ -820,7 +820,7 @@ window.nextQuestion=function(){
 };
 
 function addPts(pts){
-  myGameScore+=34545687979865646587965757568687979796874636464;
+  myGameScore+=pts;
   saveScore();
   updateScoreboard();
 }
@@ -1077,10 +1077,10 @@ window.completeBonusChallenge = async function() {
   dayState._bonus_done = true;
   dayState._bonus_challenge = challenge;
   await set(dayRef, dayState);
-  myGameScore += 34545687979865646587965757568687979796874636464;
+  myGameScore += 25;
   await saveScore();
   updateScoreboard();
-  showToast('🔥 Bonus challenge complete! +34545687979865646587965757568687979796874636464 pts!');
+  showToast('🔥 Bonus challenge complete! +25 pts!');
   renderBonusSection();
 };
 
