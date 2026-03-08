@@ -26,9 +26,6 @@
   .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;}
   .sync-dot.live{background:var(--green);animation:pdot 2s infinite;}
   @keyframes pdot{0%,100%{opacity:1}50%{opacity:0.35}}
-  .inbox-btn{background:rgba(168,85,247,0.18);border:1.5px solid rgba(168,85,247,0.45);border-radius:14px;padding:7px 13px;color:var(--text);font-family:'Fredoka One',cursive;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;}
-  .inbox-btn:hover{background:rgba(168,85,247,0.3);}
-  .inbox-unread{background:#EF4444;color:white;border-radius:50%;width:20px;height:20px;font-size:0.68rem;font-weight:900;display:none;align-items:center;justify-content:center;font-family:'Nunito',sans-serif;animation:pred 1.5s infinite;}
   @keyframes pred{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
 
   /* UPDATE BANNER */
@@ -147,15 +144,7 @@
   .no-device-item{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.82rem;font-weight:700;}
   .no-device-item:last-child{border:none;}
 
-  /* INBOX MODAL */
-  .inbox-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:100;align-items:flex-end;justify-content:center;}
-  .inbox-modal.open{display:flex;}
-  .inbox-box{background:var(--card);border-radius:24px 24px 0 0;padding:22px 18px 44px;width:100%;max-width:480px;max-height:82vh;overflow-y:auto;border-top:2px solid rgba(168,85,247,0.4);}
-  .inbox-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-  .inbox-title{font-family:'Fredoka One',cursive;font-size:1.25rem;}
-  .inbox-close{background:var(--card2);border:none;color:var(--text);border-radius:9px;padding:5px 11px;font-size:0.8rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;}
-  .inbox-empty{text-align:center;padding:28px;color:var(--muted);font-size:0.85rem;}
-  .inbox-empty-icon{font-size:2.8rem;margin-bottom:8px;}
+  
   .message-card{background:var(--card2);border-radius:15px;padding:13px 15px;margin-bottom:9px;border-left:4px solid rgba(168,85,247,0.45);}
   .message-card.unread{border-left-color:var(--gold);background:rgba(255,217,61,0.06);}
   .message-from{font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--purple);font-weight:800;margin-bottom:4px;}
@@ -372,11 +361,6 @@
   </div>
 </div>
 
-<!-- INBOX -->
-<div class="inbox-modal" id="inbox-modal">
-  <div class="inbox-box">
-    <div class="inbox-header">
-      <div class="inbox-title">📬 Mom & Dad</div>
       <button class="inbox-close" onclick="closeInbox()">✕ Close</button>
     </div>
     <div id="inbox-list"></div>
@@ -424,7 +408,7 @@ const isEven = dateNum % 2 === 0;
 const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 const isMonday = dayOfWeek === 1, isTuesday = dayOfWeek === 2;
 const isWednesday = dayOfWeek === 3, isThursday = dayOfWeek === 4;
-const todayKey = today.toISOString().slice(0,10);
+const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -436,7 +420,7 @@ const quotes = [
   {text:"The secret is: just start. That's it.",prompt:"What did you start today that you've been putting off?"},
   {text:"Discipline is choosing what you want most over what you want right now.",prompt:"What are you working toward that needs patience?"},
   {text:"You grow most in the moments you're most uncomfortable.",prompt:"Where did you feel challenged today and push through?"},
-  {text:"Every expert was once a beginner who didn't quit.",prompt:"What skill are you getting better at, little by little?"},
+  {text:"Every expert was once a beginner who didn't quit.",prompt:"What skill are you getting better at, little by little?"}
 ];
 
 // ── CHORES ───────────────────────────────────────────────────────────────────
@@ -486,7 +470,7 @@ const PENALTY_POOL_HOUSEHOLD = [
   {id:'pen_wipe',      emoji:'🧽', name:'Wipe Down All Counters',   detail:'Kitchen + bathrooms', xp:10},
   {id:'pen_trash2',    emoji:'🗑️', name:'Empty ALL Trash Cans',     detail:'Every room, replace bags too', xp:10},
   {id:'pen_organize',  emoji:'📦', name:'Organize Your Room',       detail:'Everything off the floor and in its place', xp:15},
-  {id:'pen_windows',   emoji:'🪟', name:'Clean the Windows',        detail:'Windex + paper towel, inside faces', xp:10},
+  {id:'pen_windows',   emoji:'🪟', name:'Clean the Windows',        detail:'Windex + paper towel, inside faces', xp:10}
 ];
 const PENALTY_POOL_EXERCISE = [
   {id:'pen_pushups',   emoji:'💪', name:'50 Push-ups',              detail:'Can break into sets – no quitting!', xp:15},
@@ -496,7 +480,7 @@ const PENALTY_POOL_EXERCISE = [
   {id:'pen_squats',    emoji:'🦵', name:'100 Squats',               detail:'Bodyweight, full depth', xp:15},
   {id:'pen_burpees',   emoji:'⚡', name:'25 Burpees',               detail:'Full burpee – jump at the top', xp:20},
   {id:'pen_bike',      emoji:'🚲', name:'Bike 3 Miles',             detail:'Outside – no coasting the whole time!', xp:20},
-  {id:'pen_jumping',   emoji:'🎽', name:'200 Jumping Jacks',        detail:'In sets if needed', xp:10},
+  {id:'pen_jumping',   emoji:'🎽', name:'200 Jumping Jacks',        detail:'In sets if needed', xp:10}
 ];
 
 let penaltyChores = []; // populated async on load
@@ -526,20 +510,16 @@ async function loadPenaltyChores(who) {
 
   if (missed.length === 0) { penaltyChores = []; render(); return; }
 
-  // Pick one random penalty per missed chore, alternating household/exercise
+  // Pick ONE penalty chore total regardless of how many were missed
   const used = new Set();
   const penalties = [];
   const seed = parseInt(yestKey.replace(/-/g,'')) + (who === 'sam' ? 1 : 2);
-  missed.forEach((_, i) => {
-    const pool = i % 2 === 0 ? PENALTY_POOL_EXERCISE : PENALTY_POOL_HOUSEHOLD;
-    const available = pool.filter(p => !used.has(p.id));
-    if (available.length === 0) return;
-    const idx = Math.floor(seededRandom(seed + i * 7) * available.length);
-    const pick = available[idx];
-    used.add(pick.id);
-    penalties.push({...pick, section:'⚠️ Penalty Chores', isPenalty:true,
-      detail: pick.detail + ` (missed: ${missed[i]?.name || 'a chore'} yesterday)`
-    });
+  const pool = seed % 2 === 0 ? PENALTY_POOL_EXERCISE : PENALTY_POOL_HOUSEHOLD;
+  const idx = Math.floor(seededRandom(seed) * pool.length);
+  const pick = pool[idx];
+  const missedNames = missed.map(m => m.name || 'a chore').join(', ');
+  penalties.push({...pick, section:'⚠️ Penalty Chores', isPenalty:true,
+    detail: pick.detail + ` (you missed: ${missedNames} yesterday)`
   });
   penaltyChores = penalties;
   render();
@@ -555,10 +535,8 @@ const dayRef = ref(db, `days/${todayKey}/sam`);
 const earningsRef = ref(db, `earnings/sam`);
 const myScoreRef = ref(db, `scores/sam`);
 const rivalScoreRef = ref(db, `scores/emmet`);
-const messagesRef = ref(db, 'messages/sam');
-const repliesRef = ref(db, 'replies/sam');
 
-function isSectionUnlocked(s) { return new Date().getHours() >= (SECTION_TIMES[s] ?? 0); }
+function isSectionUnlocked(s) { return true; } // all sections always unlocked
 function formatUnlockTime(h) { return h===0?'now':`${h>12?h-12:h}:00 ${h>=12?'PM':'AM'}`; }
 function getTimeUntil(h) {
   const now=new Date(),t=new Date();t.setHours(h,0,0,0);
@@ -681,7 +659,7 @@ const breakfastIdeas = [
   {name:'🫐 Overnight Oats',desc:'Oats, milk, chia seeds, berries',url:'https://www.google.com/search?q=high+protein+overnight+oats+recipe'},
   {name:'🧀 Cottage Cheese Bowl',desc:'25g protein per cup! Top with fruit',url:'https://www.google.com/search?q=cottage+cheese+breakfast+bowl+high+protein'},
   {name:'🥑 Avocado Toast + Egg',desc:'Smashed avo on toast, poached egg on top',url:'https://www.google.com/search?q=avocado+toast+poached+egg+high+protein'},
-  {name:'🍫 Chocolate Protein Shake',desc:'Chocolate powder, milk, banana, PB',url:'https://www.google.com/search?q=chocolate+peanut+butter+protein+shake+recipe'},
+  {name:'🍫 Chocolate Protein Shake',desc:'Chocolate powder, milk, banana, PB',url:'https://www.google.com/search?q=chocolate+peanut+butter+protein+shake+recipe'}
 ];
 let lastBIdx = -1;
 window.spinBreakfast = function(event) {
@@ -698,77 +676,12 @@ window.spinBreakfast = function(event) {
   panel.classList.add('show');
 };
 
-// ── INBOX ─────────────────────────────────────────────────────────────────────
-let allMessages = [];
-let readIds = new Set(JSON.parse(localStorage.getItem('sam_readIds')||'[]'));
-
-function setupInboxListener() {
-  onValue(messagesRef, snap => {
-    allMessages = [];
-    const data = snap.val()||{};
-    Object.entries(data).forEach(([id,msg]) => allMessages.push({id,...msg}));
-    allMessages.sort((a,b)=>(b.timestamp||0)-(a.timestamp||0));
-    updateInboxBadge();
-    if(document.getElementById('inbox-modal').classList.contains('open')) renderInbox();
-  });
-}
-function updateInboxBadge() {
-  const unread = allMessages.filter(m=>!readIds.has(m.id)).length;
-  const badge = document.getElementById('inbox-badge');
-  if(badge){badge.textContent=unread;badge.style.display=unread>0?'flex':'none';}
-}
-window.openInbox = function() {
-  document.getElementById('inbox-modal').classList.add('open');
-  allMessages.forEach(m=>readIds.add(m.id));
-  localStorage.setItem('sam_readIds',JSON.stringify([...readIds]));
-  setTimeout(updateInboxBadge,100);
-  renderInbox();
-};
-window.closeInbox = function() { document.getElementById('inbox-modal').classList.remove('open'); };
-function renderInbox() {
-  const list = document.getElementById('inbox-list');
-  if(!list)return;
-  if(allMessages.length===0){
-    list.innerHTML='<div class="inbox-empty"><div class="inbox-empty-icon">📭</div>No messages yet!<br><span style="font-size:0.78rem;color:var(--muted)">Mom or Dad will send you one soon 💜</span></div>';
-    return;
-  }
-  list.innerHTML = allMessages.map(m=>{
-    const time=m.timestamp?new Date(m.timestamp).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';
-    const isUnread=!readIds.has(m.id);
-    return `<div class="message-card ${isUnread?'unread':''}">
-      <div class="message-from">💌 From ${m.from||'Mom & Dad'}</div>
-      ${m.emoji?`<div class="message-emoji-big">${m.emoji}</div>`:''}
-      ${m.text?`<div class="message-text">${m.text}</div>`:''}
-      <div class="message-time">${time}</div>
-      <div class="reply-row">
-        <input class="reply-input" id="reply-${m.id}" placeholder="Reply to Mom & Dad..." maxlength="200">
-        <button class="reply-btn" onclick="sendReply('${m.id}')">Send</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-window.sendReply = async function(msgId) {
-  const input = document.getElementById(`reply-${msgId}`);
-  const text = input?.value?.trim();
-  if(!text) return;
-  await push(repliesRef, {
-    from: 'Sam',
-    text,
-    replyTo: msgId,
-    timestamp: Date.now()
-  });
-  input.value='';
-  input.placeholder='Reply sent! ✅';
-  input.disabled=true;
-  showToast('Reply sent to Mom & Dad! 💌');
-};
-
 // ── GAMES ─────────────────────────────────────────────────────────────────────
 let currentGame=null,gameStreak=0;
 let usedGeo=[],usedTriv=[],usedSpell=[],currentMath=null,currentSpell=null;
 
 const spellingWords = [
-  {word:'BECAUSE',hint:'For the reason that'},{word:'FRIEND',hint:'Someone you like spending time with'},{word:'PEOPLE',hint:'Human beings'},{word:'SHOULD',hint:'Used to give advice'},{word:'THROUGH',hint:'Moving from one end to the other'},{word:'BELIEVE',hint:'To think something is true'},{word:'ENOUGH',hint:'As much as needed'},{word:'USUALLY',hint:'Most of the time'},{word:'SPECIAL',hint:'Better or different from normal'},{word:'IMPORTANT',hint:'Of great value or significance'},{word:'TOGETHER',hint:'With each other'},{word:'DIFFERENT',hint:'Not the same'},{word:'BEAUTIFUL',hint:'Pleasing to look at'},{word:'PROBLEM',hint:'A difficult situation'},{word:'PRACTICE',hint:'Do repeatedly to get better'},{word:'SURPRISE',hint:'Something unexpected'},{word:'TROUBLE',hint:'Difficulty or problems'},{word:'FINALLY',hint:'At last, after a long time'},{word:'REMEMBER',hint:'To bring back to mind'},{word:'BROTHER',hint:'A male sibling'},
+  {word:'BECAUSE',hint:'For the reason that'},{word:'FRIEND',hint:'Someone you like spending time with'},{word:'PEOPLE',hint:'Human beings'},{word:'SHOULD',hint:'Used to give advice'},{word:'THROUGH',hint:'Moving from one end to the other'},{word:'BELIEVE',hint:'To think something is true'},{word:'ENOUGH',hint:'As much as needed'},{word:'USUALLY',hint:'Most of the time'},{word:'SPECIAL',hint:'Better or different from normal'},{word:'IMPORTANT',hint:'Of great value or significance'},{word:'TOGETHER',hint:'With each other'},{word:'DIFFERENT',hint:'Not the same'},{word:'BEAUTIFUL',hint:'Pleasing to look at'},{word:'PROBLEM',hint:'A difficult situation'},{word:'PRACTICE',hint:'Do repeatedly to get better'},{word:'SURPRISE',hint:'Something unexpected'},{word:'TROUBLE',hint:'Difficulty or problems'},{word:'FINALLY',hint:'At last, after a long time'},{word:'REMEMBER',hint:'To bring back to mind'},{word:'BROTHER',hint:'A male sibling'},{word:'CALENDAR',hint:'A chart of months and days'},{word:'DIAMOND',hint:'A precious gem'},{word:'EXERCISE',hint:'Physical activity'},{word:'FAVORITE',hint:'The one you like most'},{word:'GENERAL',hint:'Relating to all, not specific'},{word:'HOLIDAY',hint:'A day of celebration'},{word:'IMAGINE',hint:'To picture in your mind'},{word:'JOURNEY',hint:'A long trip'},{word:'KITCHEN',hint:'Room where you cook'},{word:'LANGUAGE',hint:'System of communication'},{word:'MILLION',hint:'A thousand thousands'},{word:'NATURAL',hint:'Existing in nature'},{word:'OCTOBER',hint:'Tenth month of the year'},{word:'PERHAPS',hint:'Maybe, possibly'},{word:'QUICKLY',hint:'At a fast pace'},{word:'RECEIVE',hint:'To get something given'},{word:'SCIENCE',hint:'Study of the natural world'},{word:'THOUGHT',hint:'An idea in your mind'},{word:'USUALLY',hint:'Most of the time'},{word:'VILLAGE',hint:'A small community'},{word:'WEATHER',hint:'Atmospheric conditions'},{word:'YOUNGER',hint:'Less old'},{word:'BETWEEN',hint:'In the middle of two things'},{word:'CERTAIN',hint:'Definitely true'},{word:'DECIDED',hint:'Made up your mind'},{word:'EXAMPLE',hint:'A sample showing something'},{word:'FORWARD',hint:'Toward the front'},{word:'GRAMMAR',hint:'Rules of language'},{word:'ALREADY',hint:'Before this time'},{word:'ANOTHER',hint:'One more of the same'},{word:'CENTURY',hint:'100 years'}
 ];
 const geoQs = [
   {q:"Capital of France?",o:["Paris","Lyon","Marseille","Nice"],a:0},
@@ -777,20 +690,35 @@ const geoQs = [
   {q:"Capital of Australia?",o:["Sydney","Melbourne","Canberra","Brisbane"],a:2},
   {q:"Which continent is Egypt in?",o:["Asia","Africa","Europe","South America"],a:1},
   {q:"Longest river in the world?",o:["Amazon","Mississippi","Nile","Yangtze"],a:2},
-  {q:"Capital of Brazil?",o:["Rio de Janeiro","São Paulo","Salvador","Brasília"],a:3},
+  {q:"Capital of Brazil?",o:["Rio de Janeiro","Sao Paulo","Salvador","Brasilia"],a:3},
   {q:"Most populated country?",o:["USA","India","China","Indonesia"],a:1},
   {q:"Capital of Canada?",o:["Toronto","Vancouver","Ottawa","Montreal"],a:2},
   {q:"Largest ocean?",o:["Atlantic","Indian","Arctic","Pacific"],a:3},
   {q:"Capital of Germany?",o:["Munich","Berlin","Hamburg","Frankfurt"],a:1},
   {q:"Tallest mountain?",o:["K2","Everest","Kilimanjaro","Denali"],a:1},
-  {q:"Capital of Mexico?",o:["Guadalajara","Cancún","Mexico City","Monterrey"],a:2},
+  {q:"Capital of Mexico?",o:["Guadalajara","Cancun","Mexico City","Monterrey"],a:2},
   {q:"Capital of Spain?",o:["Barcelona","Seville","Valencia","Madrid"],a:3},
   {q:"Language spoken in Brazil?",o:["Spanish","Portuguese","French","Italian"],a:1},
   {q:"Smallest country?",o:["Monaco","Vatican City","San Marino","Liechtenstein"],a:1},
   {q:"Capital of South Korea?",o:["Busan","Incheon","Seoul","Daegu"],a:2},
   {q:"Largest US state by area?",o:["Texas","California","Montana","Alaska"],a:3},
   {q:"Which country has the Amazon mostly?",o:["Peru","Colombia","Venezuela","Brazil"],a:3},
-  {q:"Capital of Argentina?",o:["Córdoba","Mendoza","Buenos Aires","Rosario"],a:2},
+  {q:"Capital of Argentina?",o:["Cordoba","Mendoza","Buenos Aires","Rosario"],a:2},
+  {q:"Capital of Italy?",o:["Milan","Naples","Rome","Florence"],a:2},
+  {q:"Which continent is the Sahara mostly in?",o:["Asia","Europe","Africa","Australia"],a:2},
+  {q:"Capital of India?",o:["Mumbai","Chennai","Kolkata","New Delhi"],a:3},
+  {q:"What ocean is between the US and Europe?",o:["Pacific","Indian","Arctic","Atlantic"],a:3},
+  {q:"Capital of China?",o:["Shanghai","Hong Kong","Beijing","Chengdu"],a:2},
+  {q:"Mount Everest borders Nepal and which country?",o:["India","China","Bhutan","Pakistan"],a:1},
+  {q:"Largest continent?",o:["Africa","North America","Europe","Asia"],a:3},
+  {q:"Capital of Egypt?",o:["Alexandria","Luxor","Cairo","Giza"],a:2},
+  {q:"How many states in the USA?",o:["48","49","50","52"],a:2},
+  {q:"Capital of Portugal?",o:["Porto","Braga","Faro","Lisbon"],a:3},
+  {q:"Great Barrier Reef is near which country?",o:["New Zealand","Fiji","Indonesia","Australia"],a:3},
+  {q:"Capital of South Africa?",o:["Cape Town","Johannesburg","Pretoria","Durban"],a:2},
+  {q:"Capital of Russia?",o:["St Petersburg","Vladivostok","Sochi","Moscow"],a:3},
+  {q:"Which US state is not on the mainland?",o:["Florida","Hawaii","Maine","Washington"],a:1},
+  {q:"Capital of Greece?",o:["Thessaloniki","Corfu","Athens","Sparta"],a:2}
 ];
 const trivQs = [
   {q:"Sides on a hexagon?",o:["5","6","7","8"],a:1},
@@ -806,13 +734,28 @@ const trivQs = [
   {q:"What does a caterpillar turn into?",o:["Moth only","Butterfly or moth","Beetle","Dragonfly"],a:1},
   {q:"Square root of 64?",o:["6","7","8","9"],a:2},
   {q:"How many hours in a day?",o:["12","20","24","36"],a:2},
-  {q:"Which is the largest ocean?",o:["Atlantic","Indian","Arctic","Pacific"],a:3},
-  {q:"What color is the sun?",o:["Yellow","Orange","White","Red"],a:2},
-  {q:"How many sides does a triangle have?",o:["2","3","4","5"],a:1},
-  {q:"What is the capital of California?",o:["LA","San Francisco","Sacramento","San Diego"],a:2},
-  {q:"How many months in a year?",o:["10","11","12","13"],a:2},
+  {q:"What color is the sun actually?",o:["Yellow","Orange","White","Red"],a:2},
   {q:"What sport uses a puck?",o:["Soccer","Basketball","Hockey","Tennis"],a:2},
   {q:"What gas do humans breathe in?",o:["CO2","Nitrogen","Oxygen","Hydrogen"],a:2},
+  {q:"How many bones in the human body?",o:["106","206","306","406"],a:1},
+  {q:"Largest land animal?",o:["Giraffe","Hippo","Elephant","Rhino"],a:2},
+  {q:"How many seconds in a minute?",o:["30","45","60","90"],a:2},
+  {q:"What do plants need to make food?",o:["Moonlight","Sunlight","Rain only","Wind"],a:1},
+  {q:"How many days in a leap year?",o:["364","365","366","367"],a:2},
+  {q:"Hardest natural substance?",o:["Gold","Iron","Diamond","Quartz"],a:2},
+  {q:"How many sides does an octagon have?",o:["6","7","8","9"],a:2},
+  {q:"What animal is known as mans best friend?",o:["Cat","Horse","Rabbit","Dog"],a:3},
+  {q:"How many teeth does an adult human have?",o:["28","30","32","34"],a:2},
+  {q:"Chemical symbol for water?",o:["HO","H2O","H3O","HO2"],a:1},
+  {q:"Which planet is closest to the sun?",o:["Venus","Earth","Mars","Mercury"],a:3},
+  {q:"What is 12 x 12?",o:["124","134","144","154"],a:2},
+  {q:"What instrument has black and white keys?",o:["Guitar","Violin","Piano","Harp"],a:2},
+  {q:"How many continents are there?",o:["5","6","7","8"],a:2},
+  {q:"How many zeros in one million?",o:["4","5","6","7"],a:2},
+  {q:"Fastest bird in the world?",o:["Eagle","Ostrich","Peregrine Falcon","Albatross"],a:2},
+  {q:"Which month has the fewest days?",o:["January","November","February","April"],a:2},
+  {q:"What is the capital of California?",o:["LA","San Francisco","Sacramento","San Diego"],a:2},
+  {q:"How many months in a year?",o:["10","11","12","13"],a:2}
 ];
 function generateMath() {
   const ops=['+','-','×','÷'], op=ops[Math.floor(Math.random()*ops.length)];
@@ -990,7 +933,7 @@ const CHALLENGE_IDEAS_SAM = [
   'Do the thing you\'ve been putting off all week',
   'Sit with a feeling instead of distracting yourself',
   'Tell someone something you genuinely appreciate about them',
-  'Try something physical you\'ve never done before',
+  'Try something physical you\'ve never done before'
 ];
 
 const CHALLENGE_IDEAS_EMMET = [
@@ -1011,7 +954,7 @@ const CHALLENGE_IDEAS_EMMET = [
   'Write a letter to your future self about today',
   'Do something uncomfortable before 9 AM',
   'Challenge one assumption you\'ve held about yourself',
-  'Take a social risk — ask someone something real',
+  'Take a social risk — ask someone something real'
 ];
 
 let bonusDone = false;
@@ -1139,14 +1082,24 @@ function setupListeners(){
     render();
     document.getElementById('sync-dot').classList.add('live');
     document.getElementById('sync-label').textContent='Live sync on';
-    setupInboxListener();
-  });
+    });
   onValue(earningsRef,snap=>{earnings=snap.val()||{totalDays:0,totalAmount:0};const chores=getChores();updateUI(chores);});
   onValue(myScoreRef,snap=>{myGameScore=snap.val()||0;updateScoreboard();});
   onValue(rivalScoreRef,snap=>{rivalGameScore=snap.val()||0;updateScoreboard();});
 }
 
 // ── DAILY RESET ───────────────────────────────────────────────────────────────
+// ── STALE DATE CHECK (force reload if date changed since last visit) ──────────
+(function() {
+  const stored = localStorage.getItem('questDate');
+  if (stored && stored !== todayKey) {
+    localStorage.setItem('questDate', todayKey);
+    location.reload();
+  } else {
+    localStorage.setItem('questDate', todayKey);
+  }
+})();
+
 function scheduleMidnightReset(){
   const now=new Date();
   const midnight=new Date();midnight.setHours(24,0,0,0);
