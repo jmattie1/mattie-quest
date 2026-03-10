@@ -361,7 +361,7 @@ const dateNum = today.getDate();
 const isEven = dateNum % 2 === 0;
 const isWeekend = dow === 0 || dow === 6;
 const isMon = dow===1, isTue = dow===2, isWed = dow===3, isThu = dow===4;
-const todayKey = today.toISOString().slice(0,10);
+const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
